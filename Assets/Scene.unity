@@ -1365,6 +1365,7 @@ MonoBehaviour:
   activeMino: {fileID: 0}
   debugLoops: 500
   debugLoopsDelay: 5
+  currentOrientation: 0
 --- !u!4 &808225299
 Transform:
   m_ObjectHideFlags: 0

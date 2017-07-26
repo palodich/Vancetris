@@ -14,6 +14,7 @@ public class GameManger : MonoBehaviour
     public float debugLoopsDelay = 0f;
     private Rigidbody activeMinoRb;
     private Transform[] activeMinoChildren;
+    private MinoBlock activeMinoMinoBlock;
 
     private void Awake()
     {
@@ -32,11 +33,11 @@ public class GameManger : MonoBehaviour
         float inputRotateRight = Input.GetAxis("Rotate Right");
 
         
-
+        //input
         if (instance.activeMino != null)
         {
             activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
-            activeMinoChildren = instance.activeMino.GetComponentsInChildren<Transform>(true);
+            activeMinoMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
             if (inputDirection < 0)
             { 
@@ -46,23 +47,13 @@ public class GameManger : MonoBehaviour
             {
                 activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
             }
-            if (inputRotateLeft > 0)
+            if (inputRotateLeft > .5f)
             {
-                Debug.Log(Time.time + " Rotate left! " + inputRotateLeft);
+                activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.left);
             }
-            if (inputRotateRight > 0)
+            if (inputRotateRight > .5f)
             {
-                foreach (Transform child in activeMinoChildren)
-                {
-                    if (child.tag == "flat")
-                    {
-                        child.gameObject.SetActive(false);
-                    }
-                    if (child.tag == "right")
-                    {
-                        child.gameObject.SetActive(true);
-                    }
-                }
+                activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.right);
             }
         }
 
@@ -73,7 +64,7 @@ public class GameManger : MonoBehaviour
     {
         for (int i = 0; i < loops; i++)
         {
-            minoSpawner.SpawnActiveMino();
+            MinoBlock.SpawnActiveMino();
             yield return new WaitForSeconds(seconds);
         }
     }
