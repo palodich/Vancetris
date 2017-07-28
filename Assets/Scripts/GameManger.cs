@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+enum Button
+{
+    left,
+    right,
+    up,
+    down
+}
+
 public class GameManger : MonoBehaviour
 {
     public static GameManger instance;
@@ -16,6 +24,10 @@ public class GameManger : MonoBehaviour
     private Transform[] activeMinoChildren;
     private MinoBlock activeMinoMinoBlock;
 
+    private float buttonTimer = 0; // Counter time for pressed button
+    public float buttonHoldDelay = 3;
+    private bool movedOnce;
+
     private void Awake()
     {
         instance = this;
@@ -24,41 +36,77 @@ public class GameManger : MonoBehaviour
     private void Start()
     {
         StartCoroutine(StartGame(debugLoops, debugLoopsDelay));
+        MinoBlock.SpawnActiveMino();
     }
 
     private void Update()
     {
-        bool inputLeft = Input.GetButtonDown("Left");
-        bool inputRight = Input.GetButtonDown("Right");
-        bool inputRotateLeft = Input.GetButtonDown("Rotate Left");
-        bool inputRotateRight = Input.GetButtonDown("Rotate Right");
+        if (instance.activeMino == null)
+        {
+            movedOnce = false; //make sure newly spawned Mino still has an input repeat delay
+            buttonTimer = 0;
+        }
+        PlayerInput();
+    }
 
-        
-        //input
-        if (instance.activeMino != null)
+    private void PlayerInput()
+    {
+        if (instance.activeMino != null) // make sure there's an activeMino in the scene
         {
             activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
             activeMinoMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
-            if (inputLeft)
-            { 
-                activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
-            }
-            if (inputRight)
+            if (Input.GetButton("Left"))
             {
-                activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                buttonTimer += Time.deltaTime * 10;
+                if (buttonTimer > buttonHoldDelay)
+                {
+                    activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                }
+                else if (!movedOnce)
+                {
+                    activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                    movedOnce = true;
+                }
             }
-            if (inputRotateLeft)
+            else if (Input.GetButtonUp("Left"))
+            {
+                buttonTimer = 0;
+                movedOnce = false;
+            }
+
+            if (Input.GetButton("Right"))
+            {
+                buttonTimer += Time.deltaTime * 10;
+                if (buttonTimer > buttonHoldDelay)
+                {
+                    Debug.Log("Keep moving right");
+                    activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                }
+                else if (!movedOnce)
+                {
+                    Debug.Log("Right once");
+                    activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                    movedOnce = true;
+                }
+            }
+            else if (Input.GetButtonUp("Right"))
+            {
+                buttonTimer = 0;
+                movedOnce = false;
+            }
+
+            if (Input.GetButtonDown("Rotate Left"))
             {
                 activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.left);
             }
-            if (inputRotateRight)
+
+            if (Input.GetButtonDown("Rotate Right"))
             {
                 activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.right);
             }
+
         }
-
-
     }
 
     private IEnumerator StartGame(int loops, float seconds)

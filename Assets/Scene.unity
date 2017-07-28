@@ -1360,11 +1360,12 @@ MonoBehaviour:
   - {fileID: 1329408497281924, guid: 2f5fdcdaba8248d41a263726a8370af9, type: 2}
   - {fileID: 1153994109899070, guid: 8383e6e37d2878b46a5872b662400f2d, type: 2}
   - {fileID: 1474732568046194, guid: 86acb74b02d838f42b315c3ef80522cc, type: 2}
-  gameSpeed: 7
+  gameSpeed: 5
   minoSpawner: {fileID: 683381981}
   activeMino: {fileID: 0}
   debugLoops: 500
   debugLoopsDelay: 5
+  buttonHoldDelay: 3
 --- !u!4 &808225299
 Transform:
   m_ObjectHideFlags: 0
