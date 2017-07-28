@@ -46,9 +46,9 @@ public class MinoBlock : MonoBehaviour
     {
         if (GameManger.instance.activeMino == null)
         {
-            //int randomIndex = Random.Range(0, GameManger.instance.minoPrefabs.Length);
+            int randomIndex = Random.Range(0, GameManger.instance.minoPrefabs.Length);
 
-            GameManger.instance.activeMino = Instantiate(GameManger.instance.minoPrefabs[0], MinoSpawner.instance.transform.position, Quaternion.identity);
+            GameManger.instance.activeMino = Instantiate(GameManger.instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
 
             GameManger.instance.activeMino.GetComponent<MinoBlock>().SetMinoOrientation(MinoOrientation.flat);
 

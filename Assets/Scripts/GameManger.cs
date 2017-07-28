@@ -28,9 +28,10 @@ public class GameManger : MonoBehaviour
 
     private void Update()
     {
-        float inputDirection = Input.GetAxis("Horizontal");
-        float inputRotateLeft = Input.GetAxis("Rotate Left");
-        float inputRotateRight = Input.GetAxis("Rotate Right");
+        bool inputLeft = Input.GetButtonDown("Left");
+        bool inputRight = Input.GetButtonDown("Right");
+        bool inputRotateLeft = Input.GetButtonDown("Rotate Left");
+        bool inputRotateRight = Input.GetButtonDown("Rotate Right");
 
         
         //input
@@ -39,19 +40,19 @@ public class GameManger : MonoBehaviour
             activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
             activeMinoMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
-            if (inputDirection < 0)
+            if (inputLeft)
             { 
                 activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
             }
-            if (inputDirection > 0)
+            if (inputRight)
             {
                 activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
             }
-            if (inputRotateLeft > .5f)
+            if (inputRotateLeft)
             {
                 activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.left);
             }
-            if (inputRotateRight > .5f)
+            if (inputRotateRight)
             {
                 activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.right);
             }
