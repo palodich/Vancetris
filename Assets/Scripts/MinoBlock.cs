@@ -42,19 +42,6 @@ public class MinoBlock : MonoBehaviour
 
     }
 
-    public static void SpawnActiveMino()
-    {
-        if (GameManger.instance.activeMino == null)
-        {
-            int randomIndex = Random.Range(0, GameManger.instance.minoPrefabs.Length);
-            GameManger.instance.activeMino = Instantiate(GameManger.instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
-            GameManger.instance.activeMino.GetComponent<MinoBlock>().SetMinoOrientation(MinoOrientation.flat);
-            GameManger.instance.activeMino.layer = 8;
-            GameManger.instance.activeMino.GetComponent<Rigidbody>().velocity = new Vector3(0, -(GameManger.instance.gameSpeed), 0);
-        }
-        else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
-    }
-
     public void SetMinoOrientation(MinoOrientation orientation)
     {
         mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();

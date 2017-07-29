@@ -20,9 +20,9 @@ public class GameManger : MonoBehaviour
     public GameObject activeMino;
     public int debugLoops = 1;
     public float debugLoopsDelay = 0f;
-    private Rigidbody activeMinoRb;
-    private Transform[] activeMinoChildren;
-    private MinoBlock activeMinoMinoBlock;
+
+    private float gravityTimer = 0;
+    public float gravityDelay = 3;
 
     private float buttonTimer = 0; // Counter time for pressed button
     public float buttonHoldDelay = 3;
@@ -36,7 +36,7 @@ public class GameManger : MonoBehaviour
     private void Start()
     {
         StartCoroutine(StartGame(debugLoops, debugLoopsDelay));
-        MinoBlock.SpawnActiveMino();
+        SpawnActiveMino();
     }
 
     private void Update()
@@ -46,11 +46,17 @@ public class GameManger : MonoBehaviour
             movedOnce = false; //make sure newly spawned Mino still has an input repeat delay
             buttonTimer = 0;
         }
+
+        StartCoroutine("StartGravity");
+
         PlayerInput();
     }
 
     private void PlayerInput()
     {
+        Rigidbody activeMinoRb;
+        MinoBlock activeMinoMinoBlock;
+
         if (instance.activeMino != null) // make sure there's an activeMino in the scene
         {
             activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
@@ -80,12 +86,10 @@ public class GameManger : MonoBehaviour
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
                 {
-                    Debug.Log("Keep moving right");
                     activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
                 }
                 else if (!movedOnce)
                 {
-                    Debug.Log("Right once");
                     activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
                     movedOnce = true;
                 }
@@ -113,8 +117,42 @@ public class GameManger : MonoBehaviour
     {
         for (int i = 0; i < loops; i++)
         {
-            MinoBlock.SpawnActiveMino();
+            SpawnActiveMino();
             yield return new WaitForSeconds(seconds);
         }
+    }
+
+    public static void SpawnActiveMino()
+    {
+        if (instance.activeMino == null)
+        {
+            int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
+            instance.activeMino = Instantiate(instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
+            instance.activeMino.GetComponent<MinoBlock>().SetMinoOrientation(MinoOrientation.flat);
+            instance.activeMino.layer = 8;
+            //instance.activeMino.GetComponent<Rigidbody>().velocity = new Vector3(0, -(instance.gameSpeed), 0);          
+        }
+        else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
+    }
+
+    public IEnumerator StartGravity()
+    {
+        Rigidbody activeMinoRb;
+
+        if (instance.activeMino != null)
+        {
+            activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
+            gravityTimer += Time.deltaTime;
+
+            Debug.Log("gravityTimer > gravityDelay | " + gravityTimer + " > " + gravityDelay);
+
+            if (gravityTimer > gravityDelay)
+            {
+                activeMinoRb.position = new Vector3(activeMinoRb.position.x, (activeMinoRb.position.y - 1), activeMinoRb.position.z);
+                gravityTimer = 0;
+            }
+        }
+
+        yield return null;
     }
 }

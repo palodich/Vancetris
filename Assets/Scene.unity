@@ -1363,8 +1363,9 @@ MonoBehaviour:
   gameSpeed: 5
   minoSpawner: {fileID: 683381981}
   activeMino: {fileID: 0}
-  debugLoops: 500
+  debugLoops: 2
   debugLoopsDelay: 5
+  gravityDelay: 1
   buttonHoldDelay: 3
 --- !u!4 &808225299
 Transform:
