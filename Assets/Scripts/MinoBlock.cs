@@ -39,7 +39,12 @@ public class MinoBlock : MonoBehaviour
 
     private void Start()
     {
+        
+    }
 
+    private void Update()
+    {
+        
     }
 
     public void SetMinoOrientation(MinoOrientation orientation)
@@ -159,5 +164,137 @@ public class MinoBlock : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    public void CheckBelow()
+    {
+        GameObject[] minoPieces = null;
+        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+
+        switch (mb.activeMinoOrientation)
+        {
+            case MinoOrientation.flat:
+                minoPieces = mb.flatPieces;
+                break;
+            case MinoOrientation.flipped:
+                minoPieces = mb.flippedPieces;
+                break;
+            case MinoOrientation.left:
+                minoPieces = mb.leftPieces;
+                break;
+            case MinoOrientation.right:
+                minoPieces = mb.rightPieces;
+                break;
+        }
+
+        foreach (GameObject child in minoPieces)
+        {
+            Vector3 forward = child.transform.TransformDirection(Vector3.forward);
+            RaycastHit hit;
+
+            int placedMinoLayer = 1 << 9;
+            int borderLayer = 1 << 10;
+
+            int layerMask = placedMinoLayer | borderLayer;
+
+            if (Physics.Raycast(child.transform.position, forward, out hit, 1, layerMask))
+            {
+                Debug.Log(child.name + " can see " + hit.transform.name);
+                GameManger.instance.ResetMino();
+            }
+
+            //Debug.DrawRay(child.transform.position, forward * 1, Color.green);
+        }
+    }
+
+    public bool CanMoveLeft()
+    {
+        GameObject[] minoPieces = null;
+        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+
+        switch (mb.activeMinoOrientation)
+        {
+            case MinoOrientation.flat:
+                minoPieces = mb.flatPieces;
+                break;
+            case MinoOrientation.flipped:
+                minoPieces = mb.flippedPieces;
+                break;
+            case MinoOrientation.left:
+                minoPieces = mb.leftPieces;
+                break;
+            case MinoOrientation.right:
+                minoPieces = mb.rightPieces;
+                break;
+        }
+
+        foreach (GameObject child in minoPieces)
+        {
+            Vector3 left = child.transform.TransformDirection(-Vector3.left);
+            RaycastHit hit;
+
+            int placedMinoLayer = 1 << 9;
+            int borderLayer = 1 << 10;
+
+            int layerMask = placedMinoLayer | borderLayer;
+
+            if (Physics.Raycast(child.transform.position, left, out hit, 1, layerMask))
+            {
+                //Debug.Log(child.name + " can see " + hit.transform.name);
+                //GameManger.instance.ResetMino();
+                return false;
+            }
+            //Debug.DrawRay(child.transform.position, left * 1, Color.green);
+        }
+
+        return true;
+    }
+
+    public bool CanMoveRight()
+    {
+        GameObject[] minoPieces = null;
+        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+
+        switch (mb.activeMinoOrientation)
+        {
+            case MinoOrientation.flat:
+                minoPieces = mb.flatPieces;
+                break;
+            case MinoOrientation.flipped:
+                minoPieces = mb.flippedPieces;
+                break;
+            case MinoOrientation.left:
+                minoPieces = mb.leftPieces;
+                break;
+            case MinoOrientation.right:
+                minoPieces = mb.rightPieces;
+                break;
+        }
+
+        foreach (GameObject child in minoPieces)
+        {
+            Vector3 right = child.transform.TransformDirection(-Vector3.right);
+            RaycastHit hit;
+
+            int placedMinoLayer = 1 << 9;
+            int borderLayer = 1 << 10;
+
+            int layerMask = placedMinoLayer | borderLayer;
+
+            if (Physics.Raycast(child.transform.position, right, out hit, 1, layerMask))
+            {
+                //Debug.Log(child.name + " can see " + hit.transform.name);
+                //GameManger.instance.ResetMino();
+                return false;
+            }
+            //Debug.DrawRay(child.transform.position, right * 1, Color.green);
+        }
+
+        return true;
+    }
+
+    public void CanRotate()
+    {
+
     }
 }

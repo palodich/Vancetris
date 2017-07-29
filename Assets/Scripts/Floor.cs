@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Floor : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    /*private void OnTriggerEnter(Collider other)
     {
         MinoPiece.StopMino(other);
-    }
+    }*/
 }

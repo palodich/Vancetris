@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MinoPiece : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    /*private void OnTriggerEnter(Collider other)
     {
         if (other.transform.parent != null)
         {
@@ -23,5 +23,6 @@ public class MinoPiece : MonoBehaviour
             other.transform.parent.gameObject.layer = 9;
             GameManger.instance.activeMino = null;
         }
-    }
+    }*/
+
 }

@@ -17,7 +17,7 @@ TagManager:
   - 
   - ActiveMinoLayer
   - PlacedMinoLayer
-  - FloorLayer
+  - BorderLayer
   - 
   - 
   - 
