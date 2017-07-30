@@ -86,14 +86,14 @@ public class GameManger : MonoBehaviour
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
                 {
-                    if (activeMinoMinoBlock.CanMoveLeft())
+                    if (activeMinoMinoBlock.CanMove(Direction.left))
                     {
                         activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
                     }
                 }
                 else if (!movedOnce)
                 {
-                    if (activeMinoMinoBlock.CanMoveLeft())
+                    if (activeMinoMinoBlock.CanMove(Direction.left))
                     {
                         activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
                         movedOnce = true;
@@ -111,14 +111,14 @@ public class GameManger : MonoBehaviour
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
                 {
-                    if (activeMinoMinoBlock.CanMoveRight())
+                    if (activeMinoMinoBlock.CanMove(Direction.right))
                     {
                         activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
                     }
                 }
                 else if (!movedOnce)
                 {
-                    if (activeMinoMinoBlock.CanMoveRight())
+                    if (activeMinoMinoBlock.CanMove(Direction.right))
                     {
                         activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
                         movedOnce = true;
@@ -133,12 +133,12 @@ public class GameManger : MonoBehaviour
 
             if (Input.GetButtonDown("Rotate Left"))
             {
-                activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.left);
+                activeMinoMinoBlock.RotateMinoBlock(Direction.left);
             }
 
             if (Input.GetButtonDown("Rotate Right"))
             {
-                activeMinoMinoBlock.RotateMinoBlock(MinoRotateDirection.right);
+                activeMinoMinoBlock.RotateMinoBlock(Direction.right);
             }
 
         }

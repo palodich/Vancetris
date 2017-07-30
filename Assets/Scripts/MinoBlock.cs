@@ -21,7 +21,7 @@ public enum MinoOrientation
     flipped
 }
 
-public enum MinoRotateDirection
+public enum Direction
 {
     left,
     right
@@ -36,6 +36,7 @@ public class MinoBlock : MonoBehaviour
     [SerializeField] private GameObject[] rightPieces;
     [SerializeField] private GameObject[] flippedPieces;
     private MinoBlock mb;
+    private Vector3 vectorDirection;
 
     private void Start()
     {
@@ -106,7 +107,7 @@ public class MinoBlock : MonoBehaviour
         }
     }
 
-    public void RotateMinoBlock(MinoRotateDirection dir)
+    public void RotateMinoBlock(Direction dir)
     {
         mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
@@ -116,10 +117,10 @@ public class MinoBlock : MonoBehaviour
 
                 switch (dir)
                 {
-                    case MinoRotateDirection.left:
+                    case Direction.left:
                         mb.SetMinoOrientation(MinoOrientation.left);
                         break;
-                    case MinoRotateDirection.right:
+                    case Direction.right:
                         mb.SetMinoOrientation(MinoOrientation.right);
                         break;
                 }
@@ -129,10 +130,10 @@ public class MinoBlock : MonoBehaviour
 
                 switch (dir)
                 {
-                    case MinoRotateDirection.left:
+                    case Direction.left:
                         mb.SetMinoOrientation(MinoOrientation.flipped);
                         break;
-                    case MinoRotateDirection.right:
+                    case Direction.right:
                         mb.SetMinoOrientation(MinoOrientation.flat);
                         break;
                 }
@@ -142,10 +143,10 @@ public class MinoBlock : MonoBehaviour
 
                 switch (dir)
                 {
-                    case MinoRotateDirection.left:
+                    case Direction.left:
                         mb.SetMinoOrientation(MinoOrientation.flat);
                         break;
-                    case MinoRotateDirection.right:
+                    case Direction.right:
                         mb.SetMinoOrientation(MinoOrientation.flipped);
                         break;
                 }
@@ -155,10 +156,10 @@ public class MinoBlock : MonoBehaviour
 
                 switch (dir)
                 {
-                    case MinoRotateDirection.left:
+                    case Direction.left:
                         mb.SetMinoOrientation(MinoOrientation.right);
                         break;
-                    case MinoRotateDirection.right:
+                    case Direction.right:
                         mb.SetMinoOrientation(MinoOrientation.left);
                         break;
                 }
@@ -199,7 +200,7 @@ public class MinoBlock : MonoBehaviour
 
             if (Physics.Raycast(child.transform.position, forward, out hit, 1, layerMask))
             {
-                Debug.Log(child.name + " can see " + hit.transform.name);
+                //Debug.Log(child.name + " can see " + hit.transform.name);
                 GameManger.instance.ResetMino();
             }
 
@@ -207,7 +208,7 @@ public class MinoBlock : MonoBehaviour
         }
     }
 
-    public bool CanMoveLeft()
+    public bool CanMove(Direction dir)
     {
         GameObject[] minoPieces = null;
         mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
@@ -230,7 +231,16 @@ public class MinoBlock : MonoBehaviour
 
         foreach (GameObject child in minoPieces)
         {
-            Vector3 left = child.transform.TransformDirection(-Vector3.left);
+            switch (dir)
+            {
+                case Direction.left:
+                    vectorDirection = child.transform.TransformDirection(-Vector3.left);
+                    break;
+                case Direction.right:
+                    vectorDirection = child.transform.TransformDirection(-Vector3.right);
+                    break;
+            }
+
             RaycastHit hit;
 
             int placedMinoLayer = 1 << 9;
@@ -238,56 +248,13 @@ public class MinoBlock : MonoBehaviour
 
             int layerMask = placedMinoLayer | borderLayer;
 
-            if (Physics.Raycast(child.transform.position, left, out hit, 1, layerMask))
+            if (Physics.Raycast(child.transform.position, vectorDirection, out hit, 1, layerMask))
             {
                 //Debug.Log(child.name + " can see " + hit.transform.name);
                 //GameManger.instance.ResetMino();
                 return false;
             }
             //Debug.DrawRay(child.transform.position, left * 1, Color.green);
-        }
-
-        return true;
-    }
-
-    public bool CanMoveRight()
-    {
-        GameObject[] minoPieces = null;
-        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
-
-        switch (mb.activeMinoOrientation)
-        {
-            case MinoOrientation.flat:
-                minoPieces = mb.flatPieces;
-                break;
-            case MinoOrientation.flipped:
-                minoPieces = mb.flippedPieces;
-                break;
-            case MinoOrientation.left:
-                minoPieces = mb.leftPieces;
-                break;
-            case MinoOrientation.right:
-                minoPieces = mb.rightPieces;
-                break;
-        }
-
-        foreach (GameObject child in minoPieces)
-        {
-            Vector3 right = child.transform.TransformDirection(-Vector3.right);
-            RaycastHit hit;
-
-            int placedMinoLayer = 1 << 9;
-            int borderLayer = 1 << 10;
-
-            int layerMask = placedMinoLayer | borderLayer;
-
-            if (Physics.Raycast(child.transform.position, right, out hit, 1, layerMask))
-            {
-                //Debug.Log(child.name + " can see " + hit.transform.name);
-                //GameManger.instance.ResetMino();
-                return false;
-            }
-            //Debug.DrawRay(child.transform.position, right * 1, Color.green);
         }
 
         return true;
