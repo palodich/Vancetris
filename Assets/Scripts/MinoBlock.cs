@@ -4,27 +4,17 @@ using UnityEngine;
 
 public enum MinoType
 {
-    iMino,
-    jMino,
-    lMino,
-    oMino,
-    sMino,
-    tMino,
-    zMino
+    iMino, jMino, lMino, oMino, sMino, tMino, zMino
 }
 
 public enum MinoOrientation
 {
-    flat,
-    left,
-    right,
-    flipped
+    flat, left, right, flipped
 }
 
 public enum Direction
 {
-    left,
-    right
+    left, right
 }
 
 public class MinoBlock : MonoBehaviour
@@ -40,12 +30,12 @@ public class MinoBlock : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
 
     private void Update()
     {
-        
+
     }
 
     public void SetMinoOrientation(MinoOrientation orientation)
@@ -111,6 +101,7 @@ public class MinoBlock : MonoBehaviour
     {
         mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
+        // rotate relative to our current orientation
         switch (mb.activeMinoOrientation)
         {
             case MinoOrientation.flat:
@@ -258,10 +249,5 @@ public class MinoBlock : MonoBehaviour
         }
 
         return true;
-    }
-
-    public void CanRotate()
-    {
-
     }
 }

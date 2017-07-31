@@ -32,6 +32,11 @@ public class GameManger : MonoBehaviour
     public Row[] rows;
     public GameObject[] minoPrefabs;
 
+    private float inputHorizontal;
+    //private float inputVertical;
+    private bool inputRotateLeft;
+    private bool inputRotateRight;
+
     private void Awake()
     {
         instance = this;
@@ -77,11 +82,14 @@ public class GameManger : MonoBehaviour
 
     private void PlayerInput()
     {
-
         if (instance.activeMino != null) // make sure there's an activeMino in the scene
         {
+            inputHorizontal = Input.GetAxis("Horizontal");
+            //inputVertical = Input.GetAxis("Vertical");
+            inputRotateLeft = Input.GetButtonDown("Rotate Left");
+            inputRotateRight = Input.GetButtonDown("Rotate Right");
 
-            if (Input.GetButton("Left"))
+            if (inputHorizontal < 0)
             {
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
@@ -100,13 +108,14 @@ public class GameManger : MonoBehaviour
                     }
                 }
             }
-            else if (Input.GetButtonUp("Left"))
+
+            if (inputHorizontal == 0)
             {
                 buttonTimer = 0;
                 movedOnce = false;
             }
 
-            if (Input.GetButton("Right"))
+            if (inputHorizontal > 0)
             {
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
@@ -125,22 +134,16 @@ public class GameManger : MonoBehaviour
                     }
                 }
             }
-            else if (Input.GetButtonUp("Right"))
-            {
-                buttonTimer = 0;
-                movedOnce = false;
-            }
 
-            if (Input.GetButtonDown("Rotate Left"))
+            if (inputRotateLeft)
             {
                 activeMinoMinoBlock.RotateMinoBlock(Direction.left);
             }
 
-            if (Input.GetButtonDown("Rotate Right"))
+            if (inputRotateRight)
             {
                 activeMinoMinoBlock.RotateMinoBlock(Direction.right);
             }
-
         }
     }
 
