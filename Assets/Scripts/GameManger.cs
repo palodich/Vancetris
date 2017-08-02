@@ -14,7 +14,8 @@ public class GameManger : MonoBehaviour
 {
     public static GameManger instance;
 
-    private Rigidbody activeMinoRb;
+    private Rigidbody activeMinoRigidbody;
+    private MinoMovement activeMinoMovement;
     private MinoBlock activeMinoMinoBlock;
 
     private float minoTimer = 0f;
@@ -37,6 +38,10 @@ public class GameManger : MonoBehaviour
     private bool inputRotateLeft;
     private bool inputRotateRight;
 
+    public int moveUpCounter = 0;
+
+    [SerializeField] private bool gravityToggle;
+
     private void Awake()
     {
         instance = this;
@@ -58,26 +63,51 @@ public class GameManger : MonoBehaviour
 
             if (minoTimer > minoSpawnDelay)
             {
+                gravityToggle = true;
                 SpawnActiveMino();
+                moveUpCounter = 0;
+                activeMinoRigidbody = instance.activeMino.GetComponent<Rigidbody>();
+                activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+                activeMinoMovement = instance.activeMino.GetComponent<MinoMovement>();
             }
         }
-        else // advance the mino one line
+        else // if there's an activeMino continue the game loop
         {
-            activeMinoRb = instance.activeMino.GetComponent<Rigidbody>();
-            activeMinoMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
-
+            PlayerInput();
             gravityTimer += Time.deltaTime;
 
             if (gravityTimer > gravityDelay)
             {
-                activeMinoRb.position = new Vector3(activeMinoRb.position.x, (activeMinoRb.position.y - 1), activeMinoRb.position.z);
-                gravityTimer = 0;
+                if (activeMinoMinoBlock.CheckBelow() && gravityToggle == true)
+                {
+                    Debug.Log("can move & grav on");
+                    activeMinoMovement.MoveDown(1);
+                    gravityTimer = 0;
+                }
+                else if (activeMinoMinoBlock.CheckBelow() && gravityToggle == false)
+                {
+                    Debug.Log("can move, but grav is off");
+                    if (moveUpCounter > 0)
+                    {
+                        activeMinoMovement.MoveUp(1);
+                    }
+                    instance.ResetMino();
+                    gravityTimer = 0;
+                }
+                else
+                {
+                    Debug.Log("bye!");
+                    if (moveUpCounter > 0)
+                    {
+                        activeMinoMovement.MoveUp(1);
+                    }
+                    instance.ResetMino();
+                }
             }
 
-            activeMinoMinoBlock.CheckBelow();
-        }
+            
 
-        PlayerInput();
+        }
     }
 
     private void PlayerInput()
@@ -94,16 +124,16 @@ public class GameManger : MonoBehaviour
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
                 {
-                    if (activeMinoMinoBlock.CanMove(Direction.left))
+                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.left))
                     {
-                        activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                        activeMinoMovement.MoveHorizontal(Direction.left, 1);
                     }
                 }
                 else if (!movedOnce)
                 {
-                    if (activeMinoMinoBlock.CanMove(Direction.left))
+                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.left))
                     {
-                        activeMinoRb.position = new Vector3((activeMinoRb.position.x + 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                        activeMinoMovement.MoveHorizontal(Direction.left, 1);
                         movedOnce = true;
                     }
                 }
@@ -120,16 +150,16 @@ public class GameManger : MonoBehaviour
                 buttonTimer += Time.deltaTime * 10;
                 if (buttonTimer > buttonHoldDelay)
                 {
-                    if (activeMinoMinoBlock.CanMove(Direction.right))
+                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.right))
                     {
-                        activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                        activeMinoMovement.MoveHorizontal(Direction.right, 1);
                     }
                 }
                 else if (!movedOnce)
                 {
-                    if (activeMinoMinoBlock.CanMove(Direction.right))
+                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.right))
                     {
-                        activeMinoRb.position = new Vector3((activeMinoRb.position.x - 1), activeMinoRb.position.y, activeMinoRb.position.z);
+                        activeMinoMovement.MoveHorizontal(Direction.right, 1);
                         movedOnce = true;
                     }
                 }
@@ -137,12 +167,12 @@ public class GameManger : MonoBehaviour
 
             if (inputRotateLeft)
             {
-                activeMinoMinoBlock.RotateMinoBlock(Direction.left);
+                activeMinoMovement.RotateMinoBlock(Direction.left);
             }
 
             if (inputRotateRight)
             {
-                activeMinoMinoBlock.RotateMinoBlock(Direction.right);
+                activeMinoMovement.RotateMinoBlock(Direction.right);
             }
         }
     }
@@ -153,7 +183,7 @@ public class GameManger : MonoBehaviour
         {
             int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
             instance.activeMino = Instantiate(instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
-            instance.activeMino.GetComponent<MinoBlock>().SetMinoOrientation(MinoOrientation.flat);
+            instance.activeMino.GetComponent<MinoMovement>().SetMinoOrientation(MinoOrientation.flat);
             instance.activeMino.layer = 8;
         }
         else { Debug.LogWarning("Only one activeMino can spawn at a time."); }

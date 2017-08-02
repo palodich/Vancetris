@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 4066948117379710}
   - component: {fileID: 54746154442687662}
   - component: {fileID: 114091432068737032}
+  - component: {fileID: 114006597341198538}
   m_Layer: 0
   m_Name: SMino
   m_TagString: Untagged
@@ -1400,6 +1401,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.019, y: 0.019, z: 0.019}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114006597341198538
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1329408497281924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c0a96b030f03f469acf725a0fdd7b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114030779066954514
 MonoBehaviour:
   m_ObjectHideFlags: 1

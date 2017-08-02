@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class Wall : MonoBehaviour
 {
+    private MinoMovement activeMinoMovement;
+ 
     private void OnTriggerEnter(Collider other)
     {
         Transform parent = other.transform.parent;
+        activeMinoMovement = GameManger.instance.activeMino.GetComponent<MinoMovement>();
 
         if (parent != null)
         {
             switch (name)
             {
                 case "LWall":
-                    Debug.Log("Move right!");
+                    activeMinoMovement.MoveHorizontal(Direction.right, 1);
                     break;
                 case "RWall":
-                    Debug.Log("Move left!");
+                    activeMinoMovement.MoveHorizontal(Direction.left, 1);
                     break;
             }
         }
-
-
-        //Debug.Log(name + " collided with " + other);
     }
 }

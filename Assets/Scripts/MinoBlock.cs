@@ -19,163 +19,33 @@ public enum Direction
 
 public class MinoBlock : MonoBehaviour
 {
-    [SerializeField] private MinoType activeMinoType;
-    [SerializeField] private MinoOrientation activeMinoOrientation;
-    [SerializeField] private GameObject[] flatPieces;
-    [SerializeField] private GameObject[] leftPieces;
-    [SerializeField] private GameObject[] rightPieces;
-    [SerializeField] private GameObject[] flippedPieces;
-    private MinoBlock mb;
+    public MinoType activeMinoType;
+    public MinoOrientation activeMinoOrientation;
+    public GameObject[] flatPieces;
+    public GameObject[] leftPieces;
+    public GameObject[] rightPieces;
+    public GameObject[] flippedPieces;
+    private MinoBlock currentMb;
     private Vector3 vectorDirection;
 
-    private void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-
-    }
-
-    public void SetMinoOrientation(MinoOrientation orientation)
-    {
-        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
-
-        //hide all of the pieces
-        foreach (GameObject piece in mb.flatPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in mb.leftPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in mb.rightPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in mb.flippedPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-
-        //set the pieces that we want to active
-        switch (orientation)
-        {
-            case MinoOrientation.flat:
-                foreach (GameObject piece in mb.flatPieces)
-                {
-                    piece.gameObject.SetActive(true);
-                    mb.activeMinoOrientation = MinoOrientation.flat;
-                }
-                break;
-
-            case MinoOrientation.left:
-                foreach (GameObject piece in mb.leftPieces)
-                {
-                    piece.gameObject.SetActive(true);
-                    mb.activeMinoOrientation = MinoOrientation.left;
-                }
-                break;
-
-            case MinoOrientation.right:
-                foreach (GameObject piece in mb.rightPieces)
-                {
-                    piece.gameObject.SetActive(true);
-                    mb.activeMinoOrientation = MinoOrientation.right;
-                }
-                break;
-
-            case MinoOrientation.flipped:
-                foreach (GameObject piece in mb.flippedPieces)
-                {
-                    piece.gameObject.SetActive(true);
-                    mb.activeMinoOrientation = MinoOrientation.flipped;
-                }
-                break;
-        }
-    }
-
-    public void RotateMinoBlock(Direction dir)
-    {
-        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
-
-        // rotate relative to our current orientation
-        switch (mb.activeMinoOrientation)
-        {
-            case MinoOrientation.flat:
-
-                switch (dir)
-                {
-                    case Direction.left:
-                        mb.SetMinoOrientation(MinoOrientation.left);
-                        break;
-                    case Direction.right:
-                        mb.SetMinoOrientation(MinoOrientation.right);
-                        break;
-                }
-                break;
-
-            case MinoOrientation.left:
-
-                switch (dir)
-                {
-                    case Direction.left:
-                        mb.SetMinoOrientation(MinoOrientation.flipped);
-                        break;
-                    case Direction.right:
-                        mb.SetMinoOrientation(MinoOrientation.flat);
-                        break;
-                }
-                break;
-
-            case MinoOrientation.right:
-
-                switch (dir)
-                {
-                    case Direction.left:
-                        mb.SetMinoOrientation(MinoOrientation.flat);
-                        break;
-                    case Direction.right:
-                        mb.SetMinoOrientation(MinoOrientation.flipped);
-                        break;
-                }
-                break;
-
-            case MinoOrientation.flipped:
-
-                switch (dir)
-                {
-                    case Direction.left:
-                        mb.SetMinoOrientation(MinoOrientation.right);
-                        break;
-                    case Direction.right:
-                        mb.SetMinoOrientation(MinoOrientation.left);
-                        break;
-                }
-                break;
-        }
-    }
-
-    public void CheckBelow()
+    public bool CheckBelow()
     {
         GameObject[] minoPieces = null;
-        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+        currentMb = gameObject.GetComponent<MinoBlock>();
 
-        switch (mb.activeMinoOrientation)
+        switch (currentMb.activeMinoOrientation)
         {
             case MinoOrientation.flat:
-                minoPieces = mb.flatPieces;
+                minoPieces = currentMb.flatPieces;
                 break;
             case MinoOrientation.flipped:
-                minoPieces = mb.flippedPieces;
+                minoPieces = currentMb.flippedPieces;
                 break;
             case MinoOrientation.left:
-                minoPieces = mb.leftPieces;
+                minoPieces = currentMb.leftPieces;
                 break;
             case MinoOrientation.right:
-                minoPieces = mb.rightPieces;
+                minoPieces = currentMb.rightPieces;
                 break;
         }
 
@@ -191,32 +61,34 @@ public class MinoBlock : MonoBehaviour
 
             if (Physics.Raycast(child.transform.position, forward, out hit, 1, layerMask))
             {
-                //Debug.Log(child.name + " can see " + hit.transform.name);
-                GameManger.instance.ResetMino();
+                return false;
+                //GameManger.instance.ResetMino();
             }
-
+            else return true;
             //Debug.DrawRay(child.transform.position, forward * 1, Color.green);
         }
+
+        return true;
     }
 
-    public bool CanMove(Direction dir)
+    public bool CanMoveHorizontal(Direction dir)
     {
         GameObject[] minoPieces = null;
-        mb = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+        currentMb = gameObject.GetComponent<MinoBlock>();
 
-        switch (mb.activeMinoOrientation)
+        switch (currentMb.activeMinoOrientation)
         {
             case MinoOrientation.flat:
-                minoPieces = mb.flatPieces;
+                minoPieces = currentMb.flatPieces;
                 break;
             case MinoOrientation.flipped:
-                minoPieces = mb.flippedPieces;
+                minoPieces = currentMb.flippedPieces;
                 break;
             case MinoOrientation.left:
-                minoPieces = mb.leftPieces;
+                minoPieces = currentMb.leftPieces;
                 break;
             case MinoOrientation.right:
-                minoPieces = mb.rightPieces;
+                minoPieces = currentMb.rightPieces;
                 break;
         }
 
@@ -247,7 +119,6 @@ public class MinoBlock : MonoBehaviour
             }
             //Debug.DrawRay(child.transform.position, left * 1, Color.green);
         }
-
         return true;
     }
 }
