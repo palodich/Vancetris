@@ -22,11 +22,16 @@ public class GameManger : MonoBehaviour
     [SerializeField] private float minoSpawnDelay = 1f;
 
     private float gravityTimer = 0f;
-    [SerializeField] private float gravityDelay = 1f;
+    [SerializeField] private float gravityDelay = 0.25f;
+    [SerializeField] private float fastGravityDelay = 0.05f;
+    private float currentGravityDelay;
 
     private float buttonTimer = 0f;
-    [SerializeField] private float buttonHoldDelay = 3f;
+    [SerializeField] private float buttonHoldDelay = 0.5f;
     private bool movedOnce;
+
+    private float moveRepeatTimer = 0f;
+    [SerializeField] private float moveRepeatDelay = 0.5f;
 
     [SerializeField] private MinoSpawner minoSpawner;
     public GameObject activeMino;
@@ -34,13 +39,13 @@ public class GameManger : MonoBehaviour
     public GameObject[] minoPrefabs;
 
     private float inputHorizontal;
-    //private float inputVertical;
+    private float lastInputHorizontal;
+    private float inputVertical;
+    private float lastInputVertical;
     private bool inputRotateLeft;
     private bool inputRotateRight;
 
-    public int moveUpCounter = 0;
-
-    [SerializeField] private bool gravityToggle;
+    public LayerMask minoBlockLayerMask;
 
     private void Awake()
     {
@@ -54,18 +59,20 @@ public class GameManger : MonoBehaviour
 
     private void Update()
     {
+        //Debug.Log(Time.time + " | minoTimer: " + minoTimer + " | gravityTimer: " + gravityTimer + " | buttonTimer: " + buttonTimer);
+
         if (instance.activeMino == null) //if there's no activeMino spawn one
         {
             minoTimer += Time.deltaTime;
 
             movedOnce = false; //make sure newly spawned Mino still has an input repeat delay
+            moveRepeatTimer = 0;
             buttonTimer = 0;
 
             if (minoTimer > minoSpawnDelay)
             {
-                gravityToggle = true;
                 SpawnActiveMino();
-                moveUpCounter = 0;
+                currentGravityDelay = gravityDelay;
                 activeMinoRigidbody = instance.activeMino.GetComponent<Rigidbody>();
                 activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
                 activeMinoMovement = instance.activeMino.GetComponent<MinoMovement>();
@@ -76,36 +83,20 @@ public class GameManger : MonoBehaviour
             PlayerInput();
             gravityTimer += Time.deltaTime;
 
-            if (gravityTimer > gravityDelay)
+            if (gravityTimer > currentGravityDelay)
             {
-                if (activeMinoMinoBlock.CheckBelow() && gravityToggle == true)
+                if (activeMinoMinoBlock.CanMoveDown())
                 {
-                    Debug.Log("can move & grav on");
                     activeMinoMovement.MoveDown(1);
-                    gravityTimer = 0;
-                }
-                else if (activeMinoMinoBlock.CheckBelow() && gravityToggle == false)
-                {
-                    Debug.Log("can move, but grav is off");
-                    if (moveUpCounter > 0)
-                    {
-                        activeMinoMovement.MoveUp(1);
-                    }
-                    instance.ResetMino();
                     gravityTimer = 0;
                 }
                 else
                 {
-                    Debug.Log("bye!");
-                    if (moveUpCounter > 0)
-                    {
-                        activeMinoMovement.MoveUp(1);
-                    }
                     instance.ResetMino();
                 }
             }
 
-            
+
 
         }
     }
@@ -114,54 +105,56 @@ public class GameManger : MonoBehaviour
     {
         if (instance.activeMino != null) // make sure there's an activeMino in the scene
         {
+            // we need the last horiz input to determine if the button has just been pressed, or if it's being held down
+            lastInputHorizontal = inputHorizontal;
             inputHorizontal = Input.GetAxis("Horizontal");
-            //inputVertical = Input.GetAxis("Vertical");
+            lastInputVertical = inputVertical;
+            inputVertical = Input.GetAxis("Vertical");
             inputRotateLeft = Input.GetButtonDown("Rotate Left");
             inputRotateRight = Input.GetButtonDown("Rotate Right");
 
             if (inputHorizontal < 0)
             {
-                buttonTimer += Time.deltaTime * 10;
-                if (buttonTimer > buttonHoldDelay)
+                moveRepeatTimer += Time.deltaTime * 100f;
+                buttonTimer += Time.deltaTime;
+
+                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.left) == true)
                 {
-                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.left))
-                    {
-                        activeMinoMovement.MoveHorizontal(Direction.left, 1);
-                    }
+                    //Debug.Log("move continuously");
+                    activeMinoMovement.MoveHorizontal(Direction.left, 1);
+                    moveRepeatTimer = 0;
                 }
-                else if (!movedOnce)
+                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.left) == true)
                 {
-                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.left))
-                    {
-                        activeMinoMovement.MoveHorizontal(Direction.left, 1);
-                        movedOnce = true;
-                    }
+                    //Debug.Log("move once");
+                    activeMinoMovement.MoveHorizontal(Direction.left, 1);
+                    movedOnce = true;
                 }
             }
 
             if (inputHorizontal == 0)
             {
-                buttonTimer = 0;
+                buttonTimer = 0f;
+                moveRepeatTimer = 0f;
                 movedOnce = false;
             }
 
             if (inputHorizontal > 0)
             {
-                buttonTimer += Time.deltaTime * 10;
-                if (buttonTimer > buttonHoldDelay)
+                moveRepeatTimer += Time.deltaTime * 100f;
+                buttonTimer += Time.deltaTime;
+
+                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.right) == true)
                 {
-                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.right))
-                    {
-                        activeMinoMovement.MoveHorizontal(Direction.right, 1);
-                    }
+                    //Debug.Log("move continuously");
+                    activeMinoMovement.MoveHorizontal(Direction.right, 1);
+                    moveRepeatTimer = 0;
                 }
-                else if (!movedOnce)
+                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.right) == true)
                 {
-                    if (activeMinoMinoBlock.CanMoveHorizontal(Direction.right))
-                    {
-                        activeMinoMovement.MoveHorizontal(Direction.right, 1);
-                        movedOnce = true;
-                    }
+                    //Debug.Log("move once");
+                    activeMinoMovement.MoveHorizontal(Direction.right, 1);
+                    movedOnce = true;
                 }
             }
 
@@ -173,6 +166,16 @@ public class GameManger : MonoBehaviour
             if (inputRotateRight)
             {
                 activeMinoMovement.RotateMinoBlock(Direction.right);
+            }
+
+            if (inputVertical < 0)
+            {
+                currentGravityDelay = fastGravityDelay;
+            }
+
+            if (inputVertical == 0)
+            {
+                currentGravityDelay = gravityDelay;
             }
         }
     }
@@ -195,11 +198,39 @@ public class GameManger : MonoBehaviour
         {
             minoTimer = 0;
 
-            foreach (Transform child in instance.activeMino.GetComponent<Transform>())
+            // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
+            switch (activeMinoMinoBlock.activeMinoOrientation)
             {
-                child.gameObject.layer = 9;
+                case MinoOrientation.flat:
+                    foreach (GameObject piece in activeMinoMinoBlock.flatPieces)
+                    {
+                        piece.gameObject.layer = 9;
+                    }
+                    break;
+
+                case MinoOrientation.left:
+                    foreach (GameObject piece in activeMinoMinoBlock.leftPieces)
+                    {
+                        piece.gameObject.layer = 9;
+                    }
+                    break;
+
+                case MinoOrientation.right:
+                    foreach (GameObject piece in activeMinoMinoBlock.rightPieces)
+                    {
+                        piece.gameObject.layer = 9;
+                    }
+                    break;
+
+                case MinoOrientation.flipped:
+                    foreach (GameObject piece in activeMinoMinoBlock.flippedPieces)
+                    {
+                        piece.gameObject.layer = 9;
+                    }
+                    break;
             }
-            //instance.activeMino.GetComponent<Rigidbody>().isKinematic = true;
+            instance.activeMino.layer = 0;
+
             instance.activeMino = null;
         }
     }

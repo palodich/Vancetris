@@ -43,7 +43,7 @@ public class MinoMovement : MonoBehaviour
 
         //MinoOrientation startOrientation = mb.activeMinoOrientation;
 
-        //set the pieces that we want to active
+        //set the pieces that we want to be visible
         switch (orientation)
         {
             case MinoOrientation.flat:

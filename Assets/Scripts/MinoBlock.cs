@@ -28,10 +28,11 @@ public class MinoBlock : MonoBehaviour
     private MinoBlock currentMinoBlock;
     private Vector3 vectorDirection;
 
-    public bool CheckBelow()
+    public bool CanMoveDown()
     {
         GameObject[] minoPieces = null;
         currentMinoBlock = gameObject.GetComponent<MinoBlock>();
+        int counter = 0;
 
         switch (currentMinoBlock.activeMinoOrientation)
         {
@@ -49,26 +50,28 @@ public class MinoBlock : MonoBehaviour
                 break;
         }
 
-        foreach (GameObject child in minoPieces)
+        foreach (GameObject piece in minoPieces)
         {
-            Vector3 forward = child.transform.TransformDirection(Vector3.forward);
+            Vector3 forward = piece.transform.TransformDirection(Vector3.forward);
             RaycastHit hit;
 
-            int placedMinoLayer = 1 << 9;
-            int borderLayer = 1 << 10;
-
-            int layerMask = placedMinoLayer | borderLayer;
-
-            if (Physics.Raycast(child.transform.position, forward, out hit, 1, layerMask))
+            if (Physics.Raycast(piece.transform.position, forward, out hit, 1, GameManger.instance.minoBlockLayerMask.value))
             {
-                return false;
+                //Debug.Log(Time.time + " " + child.name + " cannot move down, " + hit.collider.name + " (" + hit.collider.gameObject.layer + ") is in the way.");
+                counter++;
                 //GameManger.instance.ResetMino();
             }
-            else return true;
+
             //Debug.DrawRay(child.transform.position, forward * 1, Color.green);
         }
 
-        return true;
+        // return false (can't move down) if any of the pieces see the floor, or other set pieces
+        if (counter > 0)
+        {
+            return false;
+        }
+        else return true;
+
     }
 
     public bool CanMoveHorizontal(Direction dir)
@@ -106,12 +109,7 @@ public class MinoBlock : MonoBehaviour
 
             RaycastHit hit;
 
-            int placedMinoLayer = 1 << 9;
-            int borderLayer = 1 << 10;
-
-            int layerMask = placedMinoLayer | borderLayer;
-
-            if (Physics.Raycast(child.transform.position, vectorDirection, out hit, 1, layerMask))
+            if (Physics.Raycast(child.transform.position, vectorDirection, out hit, 1, GameManger.instance.minoBlockLayerMask.value))
             {
                 //Debug.Log(child.name + " can see " + hit.transform.name);
                 //GameManger.instance.ResetMino();
