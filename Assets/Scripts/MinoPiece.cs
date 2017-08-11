@@ -6,6 +6,7 @@ public class MinoPiece : MonoBehaviour
 {
     private MinoMovement activeMinoMovement;
 
+    /*
     private void OnTriggerEnter(Collider other)
     {
         Transform parent = other.transform.parent;
@@ -18,5 +19,5 @@ public class MinoPiece : MonoBehaviour
                 GameManger.instance.moveUpCounter++;
             }
         }
-    }
+    }*/
 }

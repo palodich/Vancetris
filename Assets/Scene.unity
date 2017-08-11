@@ -354,7 +354,6 @@ GameObject:
   - component: {fileID: 174654558}
   - component: {fileID: 174654557}
   - component: {fileID: 174654556}
-  - component: {fileID: 174654560}
   m_Layer: 10
   m_Name: RWall
   m_TagString: Untagged
@@ -426,17 +425,6 @@ Transform:
   m_Father: {fileID: 224136918}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &174654560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 174654555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94a1b4cdad541f046a903bce7748101c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &224136917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1483,6 +1471,7 @@ MonoBehaviour:
   - {fileID: 1329408497281924, guid: 2f5fdcdaba8248d41a263726a8370af9, type: 2}
   - {fileID: 1153994109899070, guid: 8383e6e37d2878b46a5872b662400f2d, type: 2}
   - {fileID: 1474732568046194, guid: 86acb74b02d838f42b315c3ef80522cc, type: 2}
+  moveUpCounter: 0
   gravityToggle: 0
 --- !u!4 &808225299
 Transform:
@@ -1798,7 +1787,6 @@ GameObject:
   - component: {fileID: 875851571}
   - component: {fileID: 875851570}
   - component: {fileID: 875851569}
-  - component: {fileID: 875851573}
   m_Layer: 10
   m_Name: LWall
   m_TagString: Untagged
@@ -1870,17 +1858,6 @@ Transform:
   m_Father: {fileID: 224136918}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &875851573
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 875851568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94a1b4cdad541f046a903bce7748101c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &913352074
 GameObject:
   m_ObjectHideFlags: 0

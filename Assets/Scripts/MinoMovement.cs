@@ -4,95 +4,142 @@ using UnityEngine;
 
 public class MinoMovement : MonoBehaviour
 {
-    Rigidbody currentRb;
-    MinoBlock currentMb;
+    Rigidbody currentRigidbody;
+    MinoBlock currentMinoBlock;
+    MeshRenderer currentMeshRenderer;
 
     public void MoveHorizontal(Direction direction, int distance)
     {
-        currentRb = gameObject.GetComponent<Rigidbody>();
+        currentRigidbody = gameObject.GetComponent<Rigidbody>();
 
         switch (direction)
         {
             case Direction.left:
-                currentRb.position = new Vector3((currentRb.position.x + distance), currentRb.position.y, currentRb.position.z);
+                currentRigidbody.position = new Vector3((currentRigidbody.position.x + distance), currentRigidbody.position.y, currentRigidbody.position.z);
                 break;
             case Direction.right:
-                currentRb.position = new Vector3((currentRb.position.x - distance), currentRb.position.y, currentRb.position.z);
+                currentRigidbody.position = new Vector3((currentRigidbody.position.x - distance), currentRigidbody.position.y, currentRigidbody.position.z);
                 break;
         }
     }
 
     public void MoveDown(int distance)
     {
-        currentRb = gameObject.GetComponent<Rigidbody>();
+        currentRigidbody = gameObject.GetComponent<Rigidbody>();
 
-        currentRb.position = new Vector3(currentRb.position.x, (currentRb.position.y - distance), currentRb.position.z);
+        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y - distance), currentRigidbody.position.z);
     }
 
     public void MoveUp(int distance)
     {
-        currentRb = gameObject.GetComponent<Rigidbody>();
+        currentRigidbody = gameObject.GetComponent<Rigidbody>();
 
-        currentRb.position = new Vector3(currentRb.position.x, (currentRb.position.y + distance), currentRb.position.z);
+        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y + distance), currentRigidbody.position.z);
     }
 
     public void SetMinoOrientation(MinoOrientation orientation)
     {
-        currentMb = gameObject.GetComponent<MinoBlock>();
+        currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
         //MinoOrientation startOrientation = mb.activeMinoOrientation;
-
-        //hide all of the pieces
-        foreach (GameObject piece in currentMb.flatPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in currentMb.leftPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in currentMb.rightPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
-        foreach (GameObject piece in currentMb.flippedPieces)
-        {
-            piece.gameObject.SetActive(false);
-        }
 
         //set the pieces that we want to active
         switch (orientation)
         {
             case MinoOrientation.flat:
-                foreach (GameObject piece in currentMb.flatPieces)
+                foreach (GameObject piece in currentMinoBlock.flatPieces)
                 {
-                    piece.gameObject.SetActive(true);
-                    currentMb.activeMinoOrientation = MinoOrientation.flat;
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = true;
                 }
+                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                currentMinoBlock.activeMinoOrientation = MinoOrientation.flat;
                 break;
 
             case MinoOrientation.left:
-                foreach (GameObject piece in currentMb.leftPieces)
+                foreach (GameObject piece in currentMinoBlock.flatPieces)
                 {
-                    piece.gameObject.SetActive(true);
-                    currentMb.activeMinoOrientation = MinoOrientation.left;
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
                 }
+                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = true;
+                }
+                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                currentMinoBlock.activeMinoOrientation = MinoOrientation.left;
                 break;
 
             case MinoOrientation.right:
-                foreach (GameObject piece in currentMb.rightPieces)
+                foreach (GameObject piece in currentMinoBlock.flatPieces)
                 {
-                    piece.gameObject.SetActive(true);
-                    currentMb.activeMinoOrientation = MinoOrientation.right;
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
                 }
+                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = true;
+                }
+                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                currentMinoBlock.activeMinoOrientation = MinoOrientation.right;
                 break;
 
             case MinoOrientation.flipped:
-                foreach (GameObject piece in currentMb.flippedPieces)
+                foreach (GameObject piece in currentMinoBlock.flatPieces)
                 {
-                    piece.gameObject.SetActive(true);
-                    currentMb.activeMinoOrientation = MinoOrientation.flipped;
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
                 }
+                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = false;
+                }
+                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                {
+                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer.enabled = true;
+                }
+                currentMinoBlock.activeMinoOrientation = MinoOrientation.flipped;
                 break;
         }
 
@@ -101,10 +148,10 @@ public class MinoMovement : MonoBehaviour
 
     public void RotateMinoBlock(Direction dir)
     {
-        currentMb = gameObject.GetComponent<MinoBlock>();
+        currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
         // rotate relative to our current orientation
-        switch (currentMb.activeMinoOrientation)
+        switch (currentMinoBlock.activeMinoOrientation)
         {
             case MinoOrientation.flat:
 

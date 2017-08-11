@@ -25,27 +25,27 @@ public class MinoBlock : MonoBehaviour
     public GameObject[] leftPieces;
     public GameObject[] rightPieces;
     public GameObject[] flippedPieces;
-    private MinoBlock currentMb;
+    private MinoBlock currentMinoBlock;
     private Vector3 vectorDirection;
 
     public bool CheckBelow()
     {
         GameObject[] minoPieces = null;
-        currentMb = gameObject.GetComponent<MinoBlock>();
+        currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
-        switch (currentMb.activeMinoOrientation)
+        switch (currentMinoBlock.activeMinoOrientation)
         {
             case MinoOrientation.flat:
-                minoPieces = currentMb.flatPieces;
+                minoPieces = currentMinoBlock.flatPieces;
                 break;
             case MinoOrientation.flipped:
-                minoPieces = currentMb.flippedPieces;
+                minoPieces = currentMinoBlock.flippedPieces;
                 break;
             case MinoOrientation.left:
-                minoPieces = currentMb.leftPieces;
+                minoPieces = currentMinoBlock.leftPieces;
                 break;
             case MinoOrientation.right:
-                minoPieces = currentMb.rightPieces;
+                minoPieces = currentMinoBlock.rightPieces;
                 break;
         }
 
@@ -74,21 +74,21 @@ public class MinoBlock : MonoBehaviour
     public bool CanMoveHorizontal(Direction dir)
     {
         GameObject[] minoPieces = null;
-        currentMb = gameObject.GetComponent<MinoBlock>();
+        currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
-        switch (currentMb.activeMinoOrientation)
+        switch (currentMinoBlock.activeMinoOrientation)
         {
             case MinoOrientation.flat:
-                minoPieces = currentMb.flatPieces;
+                minoPieces = currentMinoBlock.flatPieces;
                 break;
             case MinoOrientation.flipped:
-                minoPieces = currentMb.flippedPieces;
+                minoPieces = currentMinoBlock.flippedPieces;
                 break;
             case MinoOrientation.left:
-                minoPieces = currentMb.leftPieces;
+                minoPieces = currentMinoBlock.leftPieces;
                 break;
             case MinoOrientation.right:
-                minoPieces = currentMb.rightPieces;
+                minoPieces = currentMinoBlock.rightPieces;
                 break;
         }
 
