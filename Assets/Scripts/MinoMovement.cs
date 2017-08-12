@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class MinoMovement : MonoBehaviour
 {
-    Rigidbody currentRigidbody;
-    MinoBlock currentMinoBlock;
-    MeshRenderer currentMeshRenderer;
+    private Rigidbody currentRigidbody;
+    private MinoBlock currentMinoBlock;
+    private MinoPiece currentMinoPiece;
+    private MeshRenderer currentMeshRenderer;
 
     public void MoveHorizontal(Direction direction, int distance)
     {
@@ -149,6 +150,7 @@ public class MinoMovement : MonoBehaviour
     public void RotateMinoBlock(Direction dir)
     {
         currentMinoBlock = gameObject.GetComponent<MinoBlock>();
+        int counter = 0;
 
         // rotate relative to our current orientation
         switch (currentMinoBlock.activeMinoOrientation)
@@ -158,10 +160,42 @@ public class MinoMovement : MonoBehaviour
                 switch (dir)
                 {
                     case Direction.left:
-                        SetMinoOrientation(MinoOrientation.left);
+                        foreach (GameObject piece in currentMinoBlock.leftPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.left);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
                     case Direction.right:
-                        SetMinoOrientation(MinoOrientation.right);
+                        foreach (GameObject piece in currentMinoBlock.rightPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.right);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
                 }
                 break;
@@ -170,11 +204,43 @@ public class MinoMovement : MonoBehaviour
 
                 switch (dir)
                 {
-                    case Direction.left:
-                        SetMinoOrientation(MinoOrientation.flipped);
+                    case Direction.left: //flipped
+                        foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.flipped);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
-                    case Direction.right:
-                        SetMinoOrientation(MinoOrientation.flat);
+                    case Direction.right: //flat
+                        foreach (GameObject piece in currentMinoBlock.flatPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.flat);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
                 }
                 break;
@@ -183,11 +249,43 @@ public class MinoMovement : MonoBehaviour
 
                 switch (dir)
                 {
-                    case Direction.left:
-                        SetMinoOrientation(MinoOrientation.flat);
+                    case Direction.left: //flat
+                        foreach (GameObject piece in currentMinoBlock.flatPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.flat);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
-                    case Direction.right:
-                        SetMinoOrientation(MinoOrientation.flipped);
+                    case Direction.right: //flipped
+                        foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.flipped);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
                 }
                 break;
@@ -196,11 +294,44 @@ public class MinoMovement : MonoBehaviour
 
                 switch (dir)
                 {
-                    case Direction.left:
-                        SetMinoOrientation(MinoOrientation.right);
+                    case Direction.left: //right
+                        foreach (GameObject piece in currentMinoBlock.rightPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.right);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
-                    case Direction.right:
-                        SetMinoOrientation(MinoOrientation.left);
+
+                    case Direction.right: //left
+                        foreach (GameObject piece in currentMinoBlock.leftPieces)
+                        {
+                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            if (currentMinoPiece.isColliding)
+                            {
+                                counter++;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            SetMinoOrientation(MinoOrientation.left);
+                        }
+                        else
+                        {
+                            Debug.Log("Rotation blocked");
+                        }
                         break;
                 }
                 break;

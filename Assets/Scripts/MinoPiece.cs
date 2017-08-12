@@ -8,6 +8,15 @@ public class MinoPiece : MonoBehaviour
     private MeshRenderer currentMeshRenderer;
     private MeshRenderer otherMeshRenderer;
 
+    public bool isColliding = false;
+    public Collider collidingObject;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        isColliding = true;
+        collidingObject = other;
+    }
+
     private void OnTriggerStay(Collider other)
     {
         currentMeshRenderer = gameObject.GetComponent<MeshRenderer>();
@@ -30,5 +39,11 @@ public class MinoPiece : MonoBehaviour
 
             }
         }*/
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        isColliding = false;
+        collidingObject = null;
     }
 }

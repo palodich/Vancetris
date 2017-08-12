@@ -28,6 +28,11 @@ public class MinoBlock : MonoBehaviour
     private MinoBlock currentMinoBlock;
     private Vector3 vectorDirection;
 
+    /*public bool CanRotate(GameObject piece)
+    {
+        return true;
+    }*/
+
     public bool CanMoveDown()
     {
         GameObject[] minoPieces = null;
