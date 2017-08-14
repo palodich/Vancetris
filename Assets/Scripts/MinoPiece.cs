@@ -13,37 +13,28 @@ public class MinoPiece : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        isColliding = true;
-        collidingObject = other;
+        if (other.gameObject.layer == 9 || other.gameObject.layer == 10)
+        {
+            isColliding = true;
+            collidingObject = other;
+        }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        currentMeshRenderer = gameObject.GetComponent<MeshRenderer>();
-        otherMeshRenderer = other.gameObject.GetComponent<MeshRenderer>();
-
-        //Debug.Log(gameObject.name + " (MR " + currentMeshRenderer.enabled + ") collided with " + other.name + " (MR " + otherMeshRenderer.enabled + ")");
-        /*
-        if (currentMeshRenderer.enabled)
+        if (other.gameObject.layer == 9 || other.gameObject.layer == 10)
         {
-            Debug.Log(gameObject.name + " (MR " + currentMeshRenderer.enabled + ") collided with " + other.name + " (MR " + otherMeshRenderer.enabled + ")");
+            isColliding = true;
+            collidingObject = other;
         }
-
-        /*Transform parent = other.transform.parent;
-        activeMinoMovement = GameManger.instance.activeMino.GetComponent<MinoMovement>();
-
-        if (parent != null)
-        {
-            if (parent.gameObject.layer == 8)
-            {
-
-            }
-        }*/
     }
 
     private void OnTriggerExit(Collider other)
     {
-        isColliding = false;
-        collidingObject = null;
+        if (other.gameObject.layer == 9 || other.gameObject.layer == 10)
+        {
+            isColliding = false;
+            collidingObject = null;
+        }
     }
 }

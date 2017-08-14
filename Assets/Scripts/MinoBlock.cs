@@ -79,12 +79,12 @@ public class MinoBlock : MonoBehaviour
 
     }
 
-    public bool CanMoveHorizontal(Direction dir)
+    public bool CanMoveHorizontal(Direction dir, MinoOrientation orientation)
     {
         GameObject[] minoPieces = null;
         currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
-        switch (currentMinoBlock.activeMinoOrientation)
+        switch (orientation)
         {
             case MinoOrientation.flat:
                 minoPieces = currentMinoBlock.flatPieces;

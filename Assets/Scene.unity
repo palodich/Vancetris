@@ -420,7 +420,7 @@ Transform:
   m_GameObject: {fileID: 174654555}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -5.5, y: 11, z: 0}
-  m_LocalScale: {x: 1, y: 22, z: 2}
+  m_LocalScale: {x: 1, y: 22, z: 3}
   m_Children: []
   m_Father: {fileID: 224136918}
   m_RootOrder: 2
@@ -1458,7 +1458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minoSpawnDelay: 1
-  gravityDelay: 0.25
+  gravityDelay: 0.75
   fastGravityDelay: 0.05
   buttonHoldDelay: 0.4
   moveRepeatDelay: 5
@@ -1856,7 +1856,7 @@ Transform:
   m_GameObject: {fileID: 875851568}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 5.5, y: 11, z: 0}
-  m_LocalScale: {x: 1, y: 22, z: 2}
+  m_LocalScale: {x: 1, y: 22, z: 3}
   m_Children: []
   m_Father: {fileID: 224136918}
   m_RootOrder: 1
@@ -2125,7 +2125,7 @@ Transform:
   m_GameObject: {fileID: 974645908}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 22.5, z: 0}
-  m_LocalScale: {x: 12, y: 1, z: 2}
+  m_LocalScale: {x: 12, y: 1, z: 3}
   m_Children: []
   m_Father: {fileID: 224136918}
   m_RootOrder: 0
@@ -2861,10 +2861,6 @@ Prefab:
     - target: {fileID: 1716728532237178, guid: 05956ee73d7149b4cb765432ecfd13c4, type: 2}
       propertyPath: m_Name
       value: IMinoTemplate
-      objectReference: {fileID: 0}
-    - target: {fileID: 1716728532237178, guid: 05956ee73d7149b4cb765432ecfd13c4, type: 2}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 05956ee73d7149b4cb765432ecfd13c4, type: 2}
@@ -4622,7 +4618,7 @@ Transform:
   m_GameObject: {fileID: 2028369489}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 12, y: 1, z: 2}
+  m_LocalScale: {x: 12, y: 1, z: 3}
   m_Children: []
   m_Father: {fileID: 224136918}
   m_RootOrder: 3
