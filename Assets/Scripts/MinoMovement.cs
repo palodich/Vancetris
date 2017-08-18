@@ -147,11 +147,55 @@ public class MinoMovement : MonoBehaviour
         //Debug.Log("End Orentation: " + mb.activeMinoOrientation);
     }
 
+    // IMinos are special because they need to kicked 2 spaces instead of one
+    private void IMinoKick(GameObject mino, Direction endDirection, MinoOrientation endOrientation)
+    {
+        Debug.Log("Boosh, it's a mess!");
+
+        MinoBlock testBlock;
+        int counter = 0;
+
+        // Set isColliding to false before instantiate
+        foreach (GameObject piece in currentMinoBlock.flatPieces)
+        {
+            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+            currentMinoPiece.isColliding = false;
+        }
+
+        testBlock = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+
+        foreach (GameObject piece in testBlock.leftPieces)
+        {
+            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+        }
+
+        testBlock.name = "testBlock";
+
+        MoveHorizontal(testBlock.gameObject, endDirection, 2);
+
+        foreach (GameObject piece in testBlock.flatPieces)
+        {
+            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+            if (currentMinoPiece.isColliding)
+            {
+                counter++;
+            }
+        }
+
+        if (counter == 0)
+        {
+            MoveHorizontal(mino, endDirection, 2);
+            SetMinoOrientation(mino, endOrientation);
+        }
+
+        Destroy(testBlock.gameObject);
+    }
+
     public void RotateMinoBlock(GameObject mino, Direction dir)
     {
         currentMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
         int counter = 0;
-        MinoBlock testBlock;
 
         // rotate relative to our current orientation
         switch (currentMinoBlock.activeMinoOrientation)
@@ -249,6 +293,10 @@ public class MinoMovement : MonoBehaviour
                                 MoveHorizontal(mino, Direction.right, 1);
                                 SetMinoOrientation(mino, MinoOrientation.flipped);
                             }
+                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
+                            {
+                                IMinoKick(mino, Direction.left, MinoOrientation.flipped);
+                            }
                         }
                         break;
                     case Direction.right: //flat
@@ -274,52 +322,12 @@ public class MinoMovement : MonoBehaviour
                             }
                             else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.flat))
                             {
-                                MoveHorizontal(mino, Direction.right, 2);
+                                MoveHorizontal(mino, Direction.right, 1);
                                 SetMinoOrientation(mino, MinoOrientation.flat);
                             }
                             else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
                             {
-                                counter = 0;
-
-                                Debug.Log("*Testing iMino Special Snowflake Exception");
-
-                                // Set isColliding to false before instantiate
-                                foreach (GameObject piece in currentMinoBlock.flatPieces)
-                                {
-                                    currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
-                                    currentMinoPiece.isColliding = false;
-                                }
-
-                                testBlock = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
-
-                                foreach (GameObject piece in testBlock.leftPieces)
-                                {
-                                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
-                                    currentMeshRenderer.enabled = false;
-                                }
-
-                                testBlock.name = "testBlock";
-
-                                MoveHorizontal(testBlock.gameObject, Direction.left, 2);
-
-                                foreach (GameObject piece in testBlock.flatPieces)
-                                {
-                                    currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
-                                    Debug.Log(currentMinoPiece.name + " is " + currentMinoPiece.isColliding + " | " + piece.transform.parent.name);
-                                    if (currentMinoPiece.isColliding)
-                                    {
-                                        counter++;
-                                    }
-                                }
-
-                                if (counter == 0)
-                                {
-                                    MoveHorizontal(mino, Direction.left, 2);
-                                    SetMinoOrientation(mino, MinoOrientation.flat);
-                                    SetMinoOrientation(mino, MinoOrientation.flat);
-                                }
-
-                                Destroy(testBlock.gameObject);
+                                IMinoKick(mino, Direction.left, MinoOrientation.flat);
                             }
                         }
                         break;
@@ -356,6 +364,11 @@ public class MinoMovement : MonoBehaviour
                                 MoveHorizontal(mino, Direction.right, 1);
                                 SetMinoOrientation(mino, MinoOrientation.flat);
                             }
+                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
+                            {
+                                IMinoKick(mino, Direction.right, MinoOrientation.flat);
+                            }
+
                         }
                         break;
                     case Direction.right: //flipped
@@ -367,7 +380,7 @@ public class MinoMovement : MonoBehaviour
                                 counter++;
                             }
                         }
-                        
+
                         if (counter == 0)
                         {
                             SetMinoOrientation(mino, MinoOrientation.flipped);
@@ -383,6 +396,10 @@ public class MinoMovement : MonoBehaviour
                             {
                                 MoveHorizontal(mino, Direction.right, 1);
                                 SetMinoOrientation(mino, MinoOrientation.flipped);
+                            }
+                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
+                            {
+                                IMinoKick(mino, Direction.right, MinoOrientation.flipped);
                             }
                         }
                         break;

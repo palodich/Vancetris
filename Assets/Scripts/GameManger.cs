@@ -95,9 +95,6 @@ public class GameManger : MonoBehaviour
                     instance.ResetMino();
                 }
             }
-
-
-
         }
     }
 
@@ -185,7 +182,7 @@ public class GameManger : MonoBehaviour
         if (instance.activeMino == null)
         {
             int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
-            instance.activeMino = Instantiate(instance.minoPrefabs[0], MinoSpawner.instance.transform.position, Quaternion.identity);
+            instance.activeMino = Instantiate(instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
             instance.activeMino.GetComponent<MinoMovement>().SetMinoOrientation(instance.activeMino, MinoOrientation.flat);
             instance.activeMino.layer = 8;
         }
