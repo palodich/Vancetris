@@ -18,20 +18,23 @@ public class GameManger : MonoBehaviour
     private MinoMovement activeMinoMovement;
     private MinoBlock activeMinoMinoBlock;
 
-    private float minoTimer = 0f;
-    [SerializeField] private float minoSpawnDelay = 1f;
+    [HideInInspector] public float minoTimer = 0f;
+    public float minoSpawnDelay = 1f;
 
-    private float gravityTimer = 0f;
-    [SerializeField] private float gravityDelay = 0.25f;
-    [SerializeField] private float fastGravityDelay = 0.05f;
-    private float currentGravityDelay;
+    [HideInInspector] public float gravityTimer = 0f;
+    public float gravityDelay = 0.25f;
+    public float fastGravityDelay = 0.05f;
+    [HideInInspector] public float currentGravityDelay;
 
-    private float buttonTimer = 0f;
-    [SerializeField] private float buttonHoldDelay = 0.5f;
-    private bool movedOnce;
+    [HideInInspector] public float buttonTimer = 0f;
+    public float buttonHoldDelay = 0.5f;
+    [HideInInspector] public bool movedOnce;
 
-    private float moveRepeatTimer = 0f;
-    [SerializeField] private float moveRepeatDelay = 0.5f;
+    [HideInInspector] public float moveRepeatTimer = 0f;
+    public float moveRepeatDelay = 0.5f;
+
+    [HideInInspector] public float lockTimer = 0f;
+    public float lockTimerDelay = 0.5f;
 
     [SerializeField] private MinoSpawner minoSpawner;
     public GameObject activeMino;
@@ -92,7 +95,7 @@ public class GameManger : MonoBehaviour
                 }
                 else
                 {
-                    instance.ResetMino();
+                    instance.LockMino();
                 }
             }
         }
@@ -189,46 +192,52 @@ public class GameManger : MonoBehaviour
         else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
     }
 
-    public void ResetMino()
+    public void LockMino()
     {
         if (instance.activeMino != null)
         {
-            minoTimer = 0;
+            lockTimer += Time.deltaTime;
 
-            // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
-            switch (activeMinoMinoBlock.activeMinoOrientation)
+            if (lockTimer > lockTimerDelay)
             {
-                case MinoOrientation.flat:
-                    foreach (GameObject piece in activeMinoMinoBlock.flatPieces)
-                    {
-                        piece.gameObject.layer = 9;
-                    }
-                    break;
+                minoTimer = 0;
+                lockTimer = 0;
 
-                case MinoOrientation.left:
-                    foreach (GameObject piece in activeMinoMinoBlock.leftPieces)
-                    {
-                        piece.gameObject.layer = 9;
-                    }
-                    break;
+                // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
+                switch (activeMinoMinoBlock.activeMinoOrientation)
+                {
+                    case MinoOrientation.flat:
+                        foreach (GameObject piece in activeMinoMinoBlock.flatPieces)
+                        {
+                            piece.gameObject.layer = 9;
+                        }
+                        break;
 
-                case MinoOrientation.right:
-                    foreach (GameObject piece in activeMinoMinoBlock.rightPieces)
-                    {
-                        piece.gameObject.layer = 9;
-                    }
-                    break;
+                    case MinoOrientation.left:
+                        foreach (GameObject piece in activeMinoMinoBlock.leftPieces)
+                        {
+                            piece.gameObject.layer = 9;
+                        }
+                        break;
 
-                case MinoOrientation.flipped:
-                    foreach (GameObject piece in activeMinoMinoBlock.flippedPieces)
-                    {
-                        piece.gameObject.layer = 9;
-                    }
-                    break;
+                    case MinoOrientation.right:
+                        foreach (GameObject piece in activeMinoMinoBlock.rightPieces)
+                        {
+                            piece.gameObject.layer = 9;
+                        }
+                        break;
+
+                    case MinoOrientation.flipped:
+                        foreach (GameObject piece in activeMinoMinoBlock.flippedPieces)
+                        {
+                            piece.gameObject.layer = 9;
+                        }
+                        break;
+                }
+                instance.activeMino.layer = 0;
+
+                instance.activeMino = null;
             }
-            instance.activeMino.layer = 0;
-
-            instance.activeMino = null;
         }
     }
 }
