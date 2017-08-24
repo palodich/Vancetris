@@ -116,11 +116,9 @@ public class MinoBlock : MonoBehaviour
 
             if (Physics.Raycast(child.transform.position, vectorDirection, out hit, 1, GameManger.instance.minoBlockLayerMask.value))
             {
-                //Debug.Log(child.name + " can see " + hit.transform.name);
-                //GameManger.instance.ResetMino();
+                //Debug.Log(Time.time + " " + child.name + " can see " + hit.collider.name);
                 return false;
             }
-            //Debug.DrawRay(child.transform.position, left * 1, Color.green);
         }
         return true;
     }

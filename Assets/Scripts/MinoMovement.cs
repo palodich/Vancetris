@@ -11,31 +11,35 @@ public class MinoMovement : MonoBehaviour
 
     public void MoveHorizontal(GameObject mino, Direction direction, int distance)
     {
-        currentRigidbody = mino.GetComponent<Rigidbody>();
+        //currentRigidbody = mino.GetComponent<Rigidbody>();
 
         switch (direction)
         {
             case Direction.left:
-                currentRigidbody.position = new Vector3((currentRigidbody.position.x + distance), currentRigidbody.position.y, currentRigidbody.position.z);
+                mino.transform.position = new Vector3((mino.transform.position.x + distance), mino.transform.position.y, mino.transform.position.z);
                 break;
             case Direction.right:
-                currentRigidbody.position = new Vector3((currentRigidbody.position.x - distance), currentRigidbody.position.y, currentRigidbody.position.z);
+                mino.transform.position = new Vector3((mino.transform.position.x - distance), mino.transform.position.y, mino.transform.position.z);
                 break;
         }
     }
 
-    public void MoveDown(int distance)
+    public void MoveDown(GameObject mino, int distance)
     {
-        currentRigidbody = gameObject.GetComponent<Rigidbody>();
+        /*currentRigidbody = mino.GetComponent<Rigidbody>();
 
-        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y - distance), currentRigidbody.position.z);
+        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y - distance), currentRigidbody.position.z);*/
+
+        mino.transform.position = new Vector3(mino.transform.position.x, (mino.transform.position.y - distance), mino.transform.position.z);
     }
 
-    public void MoveUp(int distance)
+    public void MoveUp(GameObject mino, int distance)
     {
-        currentRigidbody = gameObject.GetComponent<Rigidbody>();
+        /*currentRigidbody = mino.GetComponent<Rigidbody>();
 
-        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y + distance), currentRigidbody.position.z);
+        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y + distance), currentRigidbody.position.z);*/
+
+        mino.transform.position = new Vector3(mino.transform.position.x, (mino.transform.position.y + distance), mino.transform.position.z);
     }
 
     public void SetMinoOrientation(GameObject mino, MinoOrientation orientation)
@@ -150,8 +154,6 @@ public class MinoMovement : MonoBehaviour
     // IMinos are special because they need to kicked 2 spaces instead of one
     private void IMinoKick(GameObject mino, Direction endDirection, MinoOrientation endOrientation)
     {
-        Debug.Log("Boosh, it's a mess!");
-
         MinoBlock testBlock;
         int counter = 0;
 
@@ -192,6 +194,185 @@ public class MinoMovement : MonoBehaviour
         Destroy(testBlock.gameObject);
     }
 
+    public void Kick(GameObject mino, MinoOrientation endOrientation)
+    {
+        MinoBlock testBlockUp;
+        MinoBlock testBlockLeft;
+        MinoBlock testBlockRight;
+
+        GameObject[] testBlockUpPieces = null;
+        GameObject[] testBlockLeftPieces = null;
+        GameObject[] testBlockRightPieces = null;
+
+        bool canKickUp = false;
+        bool canKickLeft = false;
+        bool canKickRight = false;
+
+        int upCounter = 0;
+        int leftCounter = 0;
+        int rightCounter = 0;
+
+        Collider[] testColliders;
+        Vector3 testPiecePos;
+        Vector3 overlapBoxSize = new Vector3(0.25f, 0.25f, 0.25f);
+
+        testBlockUp = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+        testBlockLeft = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+        testBlockRight = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+
+        switch (endOrientation)
+        {
+            case MinoOrientation.flat:
+                testBlockUpPieces = testBlockUp.flatPieces;
+                testBlockLeftPieces = testBlockLeft.flatPieces;
+                testBlockRightPieces = testBlockRight.flatPieces;
+                break;
+
+            case MinoOrientation.left:
+                testBlockUpPieces = testBlockUp.leftPieces;
+                testBlockLeftPieces = testBlockLeft.leftPieces;
+                testBlockRightPieces = testBlockRight.leftPieces;
+                break;
+
+            case MinoOrientation.right:
+                testBlockUpPieces = testBlockUp.rightPieces;
+                testBlockLeftPieces = testBlockLeft.rightPieces;
+                testBlockRightPieces = testBlockRight.rightPieces;
+                break;
+
+            case MinoOrientation.flipped:
+                testBlockUpPieces = testBlockUp.flippedPieces;
+                testBlockLeftPieces = testBlockLeft.flippedPieces;
+                testBlockRightPieces = testBlockRight.flippedPieces;
+                break;
+        }
+
+        testBlockUp.name = "testBlockUp";
+        testBlockLeft.name = "testBlockLeft";
+        testBlockRight.name = "testBlockRight";
+
+        testBlockUp.gameObject.layer = 0;
+        testBlockLeft.gameObject.layer = 0;
+        testBlockRight.gameObject.layer = 0;
+
+        /*
+         * Test moving the mino up
+         */
+        MoveUp(testBlockUp.gameObject, 1);
+        SetMinoOrientation(testBlockUp.gameObject, endOrientation);
+        foreach (GameObject piece in testBlockUpPieces)
+        {
+            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+
+            testPiecePos = piece.transform.position;
+
+            testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
+
+            if (testColliders.Length > 0)
+            {
+                upCounter++;
+
+                /*foreach (Collider col in testColliders)
+                {
+                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
+                }*/
+            }
+        }
+        if (upCounter == 0)
+        {
+            canKickUp = true;
+        }
+        else
+        {
+            canKickUp = false;
+        }
+
+        /*
+         * Test moving the mino left
+         */
+        MoveHorizontal(testBlockLeft.gameObject, Direction.left, 1);
+        SetMinoOrientation(testBlockLeft.gameObject, endOrientation);
+        foreach (GameObject piece in testBlockLeftPieces)
+        {
+            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+
+            testPiecePos = piece.transform.position;
+
+            testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
+
+            if (testColliders.Length > 0)
+            {
+                leftCounter++;
+
+                /*foreach (Collider col in testColliders)
+                {
+                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
+                }*/
+            }
+        }
+        if (leftCounter == 0)
+        {
+            canKickLeft = true;
+        }
+        else
+        {
+            canKickLeft = false;
+        }
+
+        /*
+         * Test moving the mino right
+         */
+        MoveHorizontal(testBlockRight.gameObject, Direction.right, 1);
+        SetMinoOrientation(testBlockRight.gameObject, endOrientation);
+        foreach (GameObject piece in testBlockRightPieces)
+        {
+            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+
+            testPiecePos = piece.transform.position;
+
+            testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
+
+            if (testColliders.Length > 0)
+            {
+                rightCounter++;
+
+                /*foreach (Collider col in testColliders)
+                {
+                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
+                }*/
+            }
+        }
+        if (rightCounter == 0)
+        {
+            canKickRight = true;
+        }
+        else
+        {
+            canKickRight = false;
+        }
+
+        //Debug.Log("canKickUp: " + canKickUp + " | " + "canKickLeft: " + canKickLeft + " | " + "canKickRight: " + canKickRight);
+
+        if (!canKickUp && canKickLeft && !canKickRight)
+        {
+            MoveHorizontal(mino, Direction.left, 1);
+            SetMinoOrientation(mino, endOrientation);
+        }
+        if (!canKickUp && !canKickLeft && canKickRight)
+        {
+            MoveHorizontal(mino, Direction.right, 1);
+            SetMinoOrientation(mino, endOrientation);
+        }
+        if (canKickUp && !canKickLeft && !canKickRight)
+        {
+            MoveUp(mino, 1);
+            SetMinoOrientation(mino, endOrientation);
+        }
+    }
+
     public void RotateMinoBlock(GameObject mino, Direction dir)
     {
         currentMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
@@ -220,16 +401,7 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.left))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.left);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.left))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.left);
-                            }
+                            Kick(mino, MinoOrientation.left);
                         }
                         break;
                     case Direction.right:
@@ -248,16 +420,7 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.right))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.right);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.right))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.right);
-                            }
+                            Kick(mino, MinoOrientation.right);
                         }
                         break;
                 }
@@ -283,20 +446,11 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.flipped))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flipped);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.flipped))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flipped);
-                            }
-                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
+                            Kick(mino, MinoOrientation.flipped);
+                            /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.left, MinoOrientation.flipped);
-                            }
+                            }*/
                         }
                         break;
                     case Direction.right: //flat
@@ -315,20 +469,11 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.flat))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flat);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.flat))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flat);
-                            }
-                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
+                            Kick(mino, MinoOrientation.flat);
+                            /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.left, MinoOrientation.flat);
-                            }
+                            }*/
                         }
                         break;
                 }
@@ -354,20 +499,11 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.flat))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flat);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.flat))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flat);
-                            }
-                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
+                            Kick(mino, MinoOrientation.flat);
+                            /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.right, MinoOrientation.flat);
-                            }
+                            }*/
 
                         }
                         break;
@@ -387,20 +523,11 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.flipped))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flipped);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.flipped))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.flipped);
-                            }
-                            else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
+                            Kick(mino, MinoOrientation.flipped);
+                            /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.right, MinoOrientation.flipped);
-                            }
+                            }*/
                         }
                         break;
                 }
@@ -426,16 +553,7 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.right))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.right);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.right))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.right);
-                            }
+                            Kick(mino, MinoOrientation.right);
                         }
                         break;
 
@@ -455,16 +573,7 @@ public class MinoMovement : MonoBehaviour
                         }
                         else
                         {
-                            if (currentMinoBlock.CanMoveHorizontal(Direction.left, MinoOrientation.left))
-                            {
-                                MoveHorizontal(mino, Direction.left, 1);
-                                SetMinoOrientation(mino, MinoOrientation.left);
-                            }
-                            else if (currentMinoBlock.CanMoveHorizontal(Direction.right, MinoOrientation.left))
-                            {
-                                MoveHorizontal(mino, Direction.right, 1);
-                                SetMinoOrientation(mino, MinoOrientation.left);
-                            }
+                            Kick(mino, MinoOrientation.left);
                         }
                         break;
                 }
