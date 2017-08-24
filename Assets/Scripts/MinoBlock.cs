@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// these should match the GameManager.instance.minoPrefabs[] array
 public enum MinoType
 {
-    iMino, jMino, lMino, oMino, sMino, tMino, zMino
+    iMino = 0, jMino = 1, lMino = 2, oMino = 3, sMino = 4, tMino = 5, zMino = 6
 }
 
 public enum MinoOrientation

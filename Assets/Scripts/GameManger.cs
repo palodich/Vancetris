@@ -208,15 +208,15 @@ public class GameManger : MonoBehaviour
 
         instance.nextMino1 = Instantiate(instance.minoPrefabs[randomIndex1], MinoPreview1.instance.transform.position, Quaternion.identity);
         minoMovementComponent = instance.nextMino1.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(instance.nextMino1, MinoOrientation.flat);
+        minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
         instance.nextMino2 = Instantiate(instance.minoPrefabs[randomIndex2], MinoPreview2.instance.transform.position, Quaternion.identity);
         minoMovementComponent = instance.nextMino2.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(instance.nextMino2, MinoOrientation.flat);
+        minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
         instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex3], MinoPreview3.instance.transform.position, Quaternion.identity);
         minoMovementComponent = instance.nextMino3.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(instance.nextMino2, MinoOrientation.flat);
+        minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
     }
 
     private static void SpawnActiveMino()
@@ -234,54 +234,22 @@ public class GameManger : MonoBehaviour
 
             instance.activeMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
             minoMovementComponent = instance.activeMino.GetComponent<MinoMovement>();
-            minoMovementComponent.SetMinoOrientation(instance.activeMino, MinoOrientation.flat);
+            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
             Destroy(instance.nextMino1);
             instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
             minoMovementComponent = instance.nextMino1.GetComponent<MinoMovement>();
-            minoMovementComponent.SetMinoOrientation(instance.nextMino1, MinoOrientation.flat);
+            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
             Destroy(instance.nextMino2);
             instance.nextMino2 = Instantiate(instance.nextMino3, MinoPreview2.instance.transform.position, Quaternion.identity);
             minoMovementComponent = instance.nextMino2.GetComponent<MinoMovement>();
-            minoMovementComponent.SetMinoOrientation(instance.nextMino2, MinoOrientation.flat);
+            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
-            /*switch (instance.nextMino2Type)
-            {
-                case MinoType.iMino:
-                    instance.nextMino1 = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
-                    break;
-
-                case MinoType.jMino:
-                    break;
-
-                case MinoType.lMino:
-                    break;
-
-                case MinoType.oMino:
-                    break;
-
-                case MinoType.sMino:
-                    break;
-
-                case MinoType.tMino:
-                    break;
-
-                case MinoType.zMino:
-                    break;
-            }*/
-
-            //Destroy(instance.nextMino1);
-
-            //instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
-
-            //instance.activeMino = instance.nextMino1;
-            //instance.activeMino.transform.position = MinoSpawner.instance.transform.position;
-
-            //instance.nextMino1 = instance.nextMino2;
-
-            //instance.activeMino = Instantiate(instance.minoPrefabs[randomIndex], MinoSpawner.instance.transform.position, Quaternion.identity);
-            //instance.activeMino.GetComponent<MinoMovement>().SetMinoOrientation(instance.activeMino, MinoOrientation.flat);
+            Destroy(instance.nextMino3);
+            instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex], MinoPreview3.instance.transform.position, Quaternion.identity);
+            minoMovementComponent = instance.nextMino3.GetComponent<MinoMovement>();
+            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
             instance.activeMino.layer = 8;
         }

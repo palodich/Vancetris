@@ -8,6 +8,7 @@ public class MinoMovement : MonoBehaviour
     private MinoBlock currentMinoBlock;
     private MinoPiece currentMinoPiece;
     private MeshRenderer currentMeshRenderer;
+    private MinoMovement minoMovementComponent;
 
     public void MoveHorizontal(GameObject mino, Direction direction, int distance)
     {
@@ -42,9 +43,9 @@ public class MinoMovement : MonoBehaviour
         mino.transform.position = new Vector3(mino.transform.position.x, (mino.transform.position.y + distance), mino.transform.position.z);
     }
 
-    public void SetMinoOrientation(GameObject mino, MinoOrientation orientation)
+    public void SetMinoOrientation(MinoOrientation orientation)
     {
-        currentMinoBlock = mino.GetComponent<MinoBlock>();
+        currentMinoBlock = GetComponent<MinoBlock>();
 
         //MinoOrientation startOrientation = mb.activeMinoOrientation;
 
@@ -188,7 +189,7 @@ public class MinoMovement : MonoBehaviour
         if (counter == 0)
         {
             MoveHorizontal(mino, endDirection, 2);
-            SetMinoOrientation(mino, endOrientation);
+            SetMinoOrientation(endOrientation);
         }
 
         Destroy(testBlock.gameObject);
@@ -259,7 +260,8 @@ public class MinoMovement : MonoBehaviour
          * Test moving the mino up
          */
         MoveUp(testBlockUp.gameObject, 1);
-        SetMinoOrientation(testBlockUp.gameObject, endOrientation);
+        minoMovementComponent = testBlockUp.GetComponent<MinoMovement>();
+        minoMovementComponent.SetMinoOrientation(endOrientation);
         foreach (GameObject piece in testBlockUpPieces)
         {
             currentMeshRenderer = piece.GetComponent<MeshRenderer>();
@@ -292,7 +294,8 @@ public class MinoMovement : MonoBehaviour
          * Test moving the mino left
          */
         MoveHorizontal(testBlockLeft.gameObject, Direction.left, 1);
-        SetMinoOrientation(testBlockLeft.gameObject, endOrientation);
+        minoMovementComponent = testBlockLeft.GetComponent<MinoMovement>();
+        minoMovementComponent.SetMinoOrientation(endOrientation);
         foreach (GameObject piece in testBlockLeftPieces)
         {
             currentMeshRenderer = piece.GetComponent<MeshRenderer>();
@@ -325,7 +328,8 @@ public class MinoMovement : MonoBehaviour
          * Test moving the mino right
          */
         MoveHorizontal(testBlockRight.gameObject, Direction.right, 1);
-        SetMinoOrientation(testBlockRight.gameObject, endOrientation);
+        minoMovementComponent = testBlockRight.GetComponent<MinoMovement>();
+        minoMovementComponent.SetMinoOrientation(endOrientation);
         foreach (GameObject piece in testBlockRightPieces)
         {
             currentMeshRenderer = piece.GetComponent<MeshRenderer>();
@@ -356,26 +360,29 @@ public class MinoMovement : MonoBehaviour
 
         //Debug.Log("canKickUp: " + canKickUp + " | " + "canKickLeft: " + canKickLeft + " | " + "canKickRight: " + canKickRight);
 
+        minoMovementComponent = mino.GetComponent<MinoMovement>();
+
         if (!canKickUp && canKickLeft && !canKickRight)
         {
             MoveHorizontal(mino, Direction.left, 1);
-            SetMinoOrientation(mino, endOrientation);
+            minoMovementComponent.SetMinoOrientation(endOrientation);
         }
         if (!canKickUp && !canKickLeft && canKickRight)
         {
             MoveHorizontal(mino, Direction.right, 1);
-            SetMinoOrientation(mino, endOrientation);
+            minoMovementComponent.SetMinoOrientation(endOrientation);
         }
         if (canKickUp && !canKickLeft && !canKickRight)
         {
             MoveUp(mino, 1);
-            SetMinoOrientation(mino, endOrientation);
+            minoMovementComponent.SetMinoOrientation(endOrientation);
         }
     }
 
     public void RotateMinoBlock(GameObject mino, Direction dir)
     {
         currentMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
+        minoMovementComponent = mino.GetComponent<MinoMovement>();
         int counter = 0;
 
         // rotate relative to our current orientation
@@ -397,7 +404,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.left);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.left);
                         }
                         else
                         {
@@ -416,7 +423,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.right);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.right);
                         }
                         else
                         {
@@ -442,7 +449,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.flipped);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flipped);
                         }
                         else
                         {
@@ -465,7 +472,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.flat);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
                         }
                         else
                         {
@@ -495,7 +502,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.flat);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
                         }
                         else
                         {
@@ -519,7 +526,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.flipped);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flipped);
                         }
                         else
                         {
@@ -549,7 +556,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.right);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.right);
                         }
                         else
                         {
@@ -569,7 +576,7 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            SetMinoOrientation(mino, MinoOrientation.left);
+                            minoMovementComponent.SetMinoOrientation(MinoOrientation.left);
                         }
                         else
                         {
