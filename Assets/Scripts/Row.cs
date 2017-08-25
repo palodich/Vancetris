@@ -4,26 +4,21 @@ using UnityEngine;
 
 public class Row : MonoBehaviour
 {
-    private Cell[] cells;
+    private Renderer currentRenderer;
 
-    public bool IsRowComplete()
+    public void CheckRow()
     {
-        cells = GetComponentsInChildren<Cell>();
+        RaycastHit[] hits;
+        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.instance.minoBlockLayerMask);
 
-        int filledCells = 0;
-
-        foreach (Cell cell in cells)
+        if (hits.Length == 10)
         {
-            if (cell.IsFull())
+            for (int i = 0; i < hits.Length; i++)
             {
-                filledCells++;
+                currentRenderer = hits[i].collider.GetComponent<Renderer>();
+
+                currentRenderer.material.color = Color.white;
             }
         }
-
-        if (filledCells == 10)
-        {
-            return true;
-        }
-        else return false;
     }
 }

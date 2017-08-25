@@ -38,12 +38,10 @@ public class GameManger : MonoBehaviour
 
     [SerializeField] private MinoSpawner minoSpawner;
     public GameObject activeMino;
-    public Row[] rows;
-    public GameObject[] minoPrefabs;
-
     public GameObject nextMino1;
     public GameObject nextMino2;
     public GameObject nextMino3;
+    public GameObject[] minoPrefabs;
 
     private float inputHorizontal;
     private float lastInputHorizontal;
@@ -53,6 +51,8 @@ public class GameManger : MonoBehaviour
     private bool inputRotateRight;
 
     public LayerMask minoBlockLayerMask;
+
+    public Row[] rows;
 
     private void Awake()
     {
@@ -101,6 +101,13 @@ public class GameManger : MonoBehaviour
                     //Debug.Log(Time.time + " | " + activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.activeMinoOrientation) + " | " + activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.activeMinoOrientation));
                     instance.LockMino();
                 }
+            }
+
+            //activeMinoMinoBlock.SnapToGrid();
+
+            for (int i = 0; i < instance.rows.Length; i++)
+            {
+                instance.rows[i].CheckRow();
             }
         }
     }
@@ -186,35 +193,39 @@ public class GameManger : MonoBehaviour
 
     private static void InitMinoQueue()
     {
-        Debug.Log("init");
         MinoMovement minoMovementComponent;
-        MinoBlock minoBlockComponent;
         int randomIndex1;
         int randomIndex2;
         int randomIndex3;
 
-        //make sure the queue does not repeat shapes
+        // inital random seed
         randomIndex1 = Random.Range(0, instance.minoPrefabs.Length);
-        randomIndex2 = randomIndex1;
+        randomIndex2 = Random.Range(0, instance.minoPrefabs.Length);
+        randomIndex3 = Random.Range(0, instance.minoPrefabs.Length);
+
+        // make sure queue is unique
         do
         {
             randomIndex2 = Random.Range(0, instance.minoPrefabs.Length);
         } while (randomIndex2 == randomIndex1);
-        randomIndex3 = randomIndex2;
+
         do
         {
             randomIndex3 = Random.Range(0, instance.minoPrefabs.Length);
-        } while (randomIndex3 == randomIndex2);
+        } while (randomIndex3 == randomIndex1 || randomIndex3 == randomIndex2);
 
         instance.nextMino1 = Instantiate(instance.minoPrefabs[randomIndex1], MinoPreview1.instance.transform.position, Quaternion.identity);
+        instance.nextMino1.name = "NextMino1";
         minoMovementComponent = instance.nextMino1.GetComponent<MinoMovement>();
         minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
         instance.nextMino2 = Instantiate(instance.minoPrefabs[randomIndex2], MinoPreview2.instance.transform.position, Quaternion.identity);
+        instance.nextMino2.name = "NextMino2";
         minoMovementComponent = instance.nextMino2.GetComponent<MinoMovement>();
         minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
         instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex3], MinoPreview3.instance.transform.position, Quaternion.identity);
+        instance.nextMino3.name = "NextMino3";
         minoMovementComponent = instance.nextMino3.GetComponent<MinoMovement>();
         minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
     }
@@ -222,32 +233,40 @@ public class GameManger : MonoBehaviour
     private static void SpawnActiveMino()
     {
         MinoMovement minoMovementComponent;
-
-        if (instance.nextMino1 == null || instance.nextMino2 == null || instance.nextMino3 == null)
-        {
-            //InitMinoQueue();
-        }
+        MinoBlock nextMino1minoBlockComponent;
+        MinoBlock nextMino2minoBlockComponent;
 
         if (instance.activeMino == null)
         {
-            int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
-
             instance.activeMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
+            instance.activeMino.name = "ActiveMino";
             minoMovementComponent = instance.activeMino.GetComponent<MinoMovement>();
             minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
             Destroy(instance.nextMino1);
             instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
+            instance.nextMino1.name = "NextMino1";
             minoMovementComponent = instance.nextMino1.GetComponent<MinoMovement>();
             minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
             Destroy(instance.nextMino2);
             instance.nextMino2 = Instantiate(instance.nextMino3, MinoPreview2.instance.transform.position, Quaternion.identity);
+            instance.nextMino2.name = "NextMino2";
             minoMovementComponent = instance.nextMino2.GetComponent<MinoMovement>();
             minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
+            nextMino1minoBlockComponent = instance.nextMino1.GetComponent<MinoBlock>();
+            nextMino2minoBlockComponent = instance.nextMino2.GetComponent<MinoBlock>();
+            int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
+
+            do
+            {
+                randomIndex = Random.Range(0, instance.minoPrefabs.Length);
+            } while (randomIndex == (int)nextMino1minoBlockComponent.activeMinoType || randomIndex == (int)nextMino2minoBlockComponent.activeMinoType);
+
             Destroy(instance.nextMino3);
             instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex], MinoPreview3.instance.transform.position, Quaternion.identity);
+            instance.nextMino3.name = "NextMino3";
             minoMovementComponent = instance.nextMino3.GetComponent<MinoMovement>();
             minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
 
@@ -348,7 +367,24 @@ public class GameManger : MonoBehaviour
                 }
                 instance.activeMino.layer = 0;
 
-                instance.activeMino = null;
+                for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+                {
+                    activeMinoMinoBlock.flatPieces[i].transform.parent = null;
+                }
+                for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+                {
+                    activeMinoMinoBlock.leftPieces[i].transform.parent = null;
+                }
+                for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+                {
+                    activeMinoMinoBlock.rightPieces[i].transform.parent = null;
+                }
+                for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+                {
+                    activeMinoMinoBlock.flippedPieces[i].transform.parent = null;
+                }
+
+                Destroy(instance.activeMino.gameObject);
             }
         }
     }

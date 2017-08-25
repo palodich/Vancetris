@@ -29,10 +29,10 @@ public class MinoBlock : MonoBehaviour
     private MinoBlock currentMinoBlock;
     private Vector3 vectorDirection;
 
-    /*public bool CanRotate(GameObject piece)
+    public void SnapToGrid()
     {
-        return true;
-    }*/
+        transform.position = new Vector3((Mathf.Round(transform.position.x * 2))/2, (Mathf.Round(transform.position.y * 2)) / 2, (Mathf.Round(transform.position.z * 2)) / 2);
+    }
 
     public bool CanMoveDown()
     {
