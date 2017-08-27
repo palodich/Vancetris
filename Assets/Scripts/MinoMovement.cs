@@ -360,6 +360,10 @@ public class MinoMovement : MonoBehaviour
 
         //Debug.Log("canKickUp: " + canKickUp + " | " + "canKickLeft: " + canKickLeft + " | " + "canKickRight: " + canKickRight);
 
+        Destroy(testBlockUp.gameObject);
+        Destroy(testBlockLeft.gameObject);
+        Destroy(testBlockRight.gameObject);
+
         minoMovementComponent = mino.GetComponent<MinoMovement>();
 
         if (!canKickUp && canKickLeft && !canKickRight)
