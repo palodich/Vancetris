@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class MinoPiece : MonoBehaviour
 {
-    private MinoMovement activeMinoMovement;
-    private MeshRenderer currentMeshRenderer;
-    private MeshRenderer otherMeshRenderer;
-
     public bool isColliding = false;
     public Collider collidingObject;
 

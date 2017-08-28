@@ -4,182 +4,169 @@ using UnityEngine;
 
 public class MinoMovement : MonoBehaviour
 {
-    private Rigidbody currentRigidbody;
     private MinoBlock currentMinoBlock;
     private MinoPiece currentMinoPiece;
     private MeshRenderer currentMeshRenderer;
-    private MinoMovement minoMovementComponent;
+    private MinoMovement currentMinoMovement;
 
-    public void MoveHorizontal(GameObject mino, Direction direction, int distance)
+    public void MoveHorizontal(Direction direction, int distance)
     {
-        //currentRigidbody = mino.GetComponent<Rigidbody>();
-
         switch (direction)
         {
             case Direction.left:
-                mino.transform.position = new Vector3((mino.transform.position.x + distance), mino.transform.position.y, mino.transform.position.z);
+                gameObject.transform.position = new Vector3((gameObject.transform.position.x + distance), gameObject.transform.position.y, gameObject.transform.position.z);
                 break;
             case Direction.right:
-                mino.transform.position = new Vector3((mino.transform.position.x - distance), mino.transform.position.y, mino.transform.position.z);
+                gameObject.transform.position = new Vector3((gameObject.transform.position.x - distance), gameObject.transform.position.y, gameObject.transform.position.z);
                 break;
         }
     }
 
-    public void MoveDown(GameObject mino, int distance)
+    public void MoveDown(int distance)
     {
-        /*currentRigidbody = mino.GetComponent<Rigidbody>();
-
-        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y - distance), currentRigidbody.position.z);*/
-
-        mino.transform.position = new Vector3(mino.transform.position.x, (mino.transform.position.y - distance), mino.transform.position.z);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - distance), gameObject.transform.position.z);
     }
 
-    public void MoveUp(GameObject mino, int distance)
+    public void MoveUp(int distance)
     {
-        /*currentRigidbody = mino.GetComponent<Rigidbody>();
-
-        currentRigidbody.position = new Vector3(currentRigidbody.position.x, (currentRigidbody.position.y + distance), currentRigidbody.position.z);*/
-
-        mino.transform.position = new Vector3(mino.transform.position.x, (mino.transform.position.y + distance), mino.transform.position.z);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y + distance), gameObject.transform.position.z);
     }
 
-    public void SetMinoOrientation(MinoOrientation orientation)
+    public void SetMinoOrientation(Orientation orientation)
     {
         currentMinoBlock = GetComponent<MinoBlock>();
-
-        //MinoOrientation startOrientation = mb.activeMinoOrientation;
 
         //set the pieces that we want to be visible
         switch (orientation)
         {
-            case MinoOrientation.flat:
-                foreach (GameObject piece in currentMinoBlock.flatPieces)
+            case Orientation.flat:
+                for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flatPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = true;
                 }
-                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.leftPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.rightPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flippedPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                currentMinoBlock.activeMinoOrientation = MinoOrientation.flat;
+                currentMinoBlock.activeMinoOrientation = Orientation.flat;
                 break;
 
-            case MinoOrientation.left:
-                foreach (GameObject piece in currentMinoBlock.flatPieces)
+            case Orientation.left:
+                for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flatPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.leftPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = true;
                 }
-                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.rightPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flippedPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                currentMinoBlock.activeMinoOrientation = MinoOrientation.left;
+                currentMinoBlock.activeMinoOrientation = Orientation.left;
                 break;
 
-            case MinoOrientation.right:
-                foreach (GameObject piece in currentMinoBlock.flatPieces)
+            case Orientation.right:
+                for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flatPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.leftPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.rightPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = true;
                 }
-                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flippedPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                currentMinoBlock.activeMinoOrientation = MinoOrientation.right;
+                currentMinoBlock.activeMinoOrientation = Orientation.right;
                 break;
 
-            case MinoOrientation.flipped:
-                foreach (GameObject piece in currentMinoBlock.flatPieces)
+            case Orientation.flipped:
+                for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flatPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.leftPieces)
+                for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.leftPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.rightPieces)
+                for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.rightPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = false;
                 }
-                foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                 {
-                    currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+                    currentMeshRenderer = currentMinoBlock.flippedPieces[i].GetComponent<MeshRenderer>();
                     currentMeshRenderer.enabled = true;
                 }
-                currentMinoBlock.activeMinoOrientation = MinoOrientation.flipped;
+                currentMinoBlock.activeMinoOrientation = Orientation.flipped;
                 break;
         }
-
-        //Debug.Log("End Orentation: " + mb.activeMinoOrientation);
     }
 
     // IMinos are special because they need to kicked 2 spaces instead of one
-    private void IMinoKick(GameObject mino, Direction endDirection, MinoOrientation endOrientation)
+    private void IMinoKick(Direction endDirection, Orientation endOrientation)
     {
         MinoBlock testBlock;
+
         int counter = 0;
 
         // Set isColliding to false before instantiate
-        foreach (GameObject piece in currentMinoBlock.flatPieces)
+        for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
         {
-            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+            currentMinoPiece = currentMinoBlock.flatPieces[i].gameObject.GetComponent<MinoPiece>();
             currentMinoPiece.isColliding = false;
         }
 
         testBlock = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
 
-        foreach (GameObject piece in testBlock.leftPieces)
+        for (int i = 0; i < testBlock.leftPieces.Length; i++)
         {
-            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer = testBlock.leftPieces[i].GetComponent<MeshRenderer>();
             currentMeshRenderer.enabled = false;
         }
 
         testBlock.name = "testBlock";
 
-        MoveHorizontal(testBlock.gameObject, endDirection, 2);
+        currentMinoMovement = testBlock.GetComponent<MinoMovement>();
+        currentMinoMovement.MoveHorizontal(endDirection, 2);
 
-        foreach (GameObject piece in testBlock.flatPieces)
+        for (int i = 0; i < testBlock.flatPieces.Length; i++)
         {
-            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+            currentMinoPiece = testBlock.flatPieces[i].gameObject.GetComponent<MinoPiece>();
             if (currentMinoPiece.isColliding)
             {
                 counter++;
@@ -188,14 +175,14 @@ public class MinoMovement : MonoBehaviour
 
         if (counter == 0)
         {
-            MoveHorizontal(mino, endDirection, 2);
+            MoveHorizontal(endDirection, 2);
             SetMinoOrientation(endOrientation);
         }
 
         Destroy(testBlock.gameObject);
     }
 
-    public void Kick(GameObject mino, MinoOrientation endOrientation)
+    public void Kick(Orientation endOrientation)
     {
         MinoBlock testBlockUp;
         MinoBlock testBlockLeft;
@@ -223,25 +210,25 @@ public class MinoMovement : MonoBehaviour
 
         switch (endOrientation)
         {
-            case MinoOrientation.flat:
+            case Orientation.flat:
                 testBlockUpPieces = testBlockUp.flatPieces;
                 testBlockLeftPieces = testBlockLeft.flatPieces;
                 testBlockRightPieces = testBlockRight.flatPieces;
                 break;
 
-            case MinoOrientation.left:
+            case Orientation.left:
                 testBlockUpPieces = testBlockUp.leftPieces;
                 testBlockLeftPieces = testBlockLeft.leftPieces;
                 testBlockRightPieces = testBlockRight.leftPieces;
                 break;
 
-            case MinoOrientation.right:
+            case Orientation.right:
                 testBlockUpPieces = testBlockUp.rightPieces;
                 testBlockLeftPieces = testBlockLeft.rightPieces;
                 testBlockRightPieces = testBlockRight.rightPieces;
                 break;
 
-            case MinoOrientation.flipped:
+            case Orientation.flipped:
                 testBlockUpPieces = testBlockUp.flippedPieces;
                 testBlockLeftPieces = testBlockLeft.flippedPieces;
                 testBlockRightPieces = testBlockRight.flippedPieces;
@@ -259,26 +246,21 @@ public class MinoMovement : MonoBehaviour
         /*
          * Test moving the mino up
          */
-        MoveUp(testBlockUp.gameObject, 1);
-        minoMovementComponent = testBlockUp.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(endOrientation);
-        foreach (GameObject piece in testBlockUpPieces)
+        currentMinoMovement = testBlockUp.GetComponent<MinoMovement>();
+        currentMinoMovement.MoveUp(1);
+        currentMinoMovement.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockUpPieces.Length; i++)
         {
-            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer = testBlockUpPieces[i].GetComponent<MeshRenderer>();
             currentMeshRenderer.enabled = false;
 
-            testPiecePos = piece.transform.position;
+            testPiecePos = testBlockUpPieces[i].transform.position;
 
             testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
 
             if (testColliders.Length > 0)
             {
                 upCounter++;
-
-                /*foreach (Collider col in testColliders)
-                {
-                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
-                }*/
             }
         }
         if (upCounter == 0)
@@ -293,26 +275,21 @@ public class MinoMovement : MonoBehaviour
         /*
          * Test moving the mino left
          */
-        MoveHorizontal(testBlockLeft.gameObject, Direction.left, 1);
-        minoMovementComponent = testBlockLeft.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(endOrientation);
-        foreach (GameObject piece in testBlockLeftPieces)
+        currentMinoMovement = testBlockLeft.GetComponent<MinoMovement>();
+        currentMinoMovement.MoveHorizontal(Direction.left, 1);
+        currentMinoMovement.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockLeftPieces.Length; i++)
         {
-            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer = testBlockLeftPieces[i].GetComponent<MeshRenderer>();
             currentMeshRenderer.enabled = false;
 
-            testPiecePos = piece.transform.position;
+            testPiecePos = testBlockLeftPieces[i].transform.position;
 
             testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
 
             if (testColliders.Length > 0)
             {
                 leftCounter++;
-
-                /*foreach (Collider col in testColliders)
-                {
-                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
-                }*/
             }
         }
         if (leftCounter == 0)
@@ -327,26 +304,21 @@ public class MinoMovement : MonoBehaviour
         /*
          * Test moving the mino right
          */
-        MoveHorizontal(testBlockRight.gameObject, Direction.right, 1);
-        minoMovementComponent = testBlockRight.GetComponent<MinoMovement>();
-        minoMovementComponent.SetMinoOrientation(endOrientation);
-        foreach (GameObject piece in testBlockRightPieces)
+        currentMinoMovement = testBlockRight.GetComponent<MinoMovement>();
+        currentMinoMovement.MoveHorizontal(Direction.right, 1);
+        currentMinoMovement.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockRightPieces.Length; i++)
         {
-            currentMeshRenderer = piece.GetComponent<MeshRenderer>();
+            currentMeshRenderer = testBlockRightPieces[i].GetComponent<MeshRenderer>();
             currentMeshRenderer.enabled = false;
 
-            testPiecePos = piece.transform.position;
+            testPiecePos = testBlockRightPieces[i].transform.position;
 
             testColliders = Physics.OverlapBox(testPiecePos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
 
             if (testColliders.Length > 0)
             {
                 rightCounter++;
-
-                /*foreach (Collider col in testColliders)
-                {
-                    Debug.Log(piece.transform.parent.name + " " + piece.name + " " + piece.transform.position + " collided with " + col.name + " " + testPiecePos);
-                }*/
             }
         }
         if (rightCounter == 0)
@@ -364,42 +336,42 @@ public class MinoMovement : MonoBehaviour
         Destroy(testBlockLeft.gameObject);
         Destroy(testBlockRight.gameObject);
 
-        minoMovementComponent = mino.GetComponent<MinoMovement>();
+        currentMinoMovement = gameObject.GetComponent<MinoMovement>();
 
         if (!canKickUp && canKickLeft && !canKickRight)
         {
-            MoveHorizontal(mino, Direction.left, 1);
-            minoMovementComponent.SetMinoOrientation(endOrientation);
+            currentMinoMovement.MoveHorizontal(Direction.left, 1);
+            currentMinoMovement.SetMinoOrientation(endOrientation);
         }
         if (!canKickUp && !canKickLeft && canKickRight)
         {
-            MoveHorizontal(mino, Direction.right, 1);
-            minoMovementComponent.SetMinoOrientation(endOrientation);
+            currentMinoMovement.MoveHorizontal(Direction.right, 1);
+            currentMinoMovement.SetMinoOrientation(endOrientation);
         }
         if (canKickUp && !canKickLeft && !canKickRight)
         {
-            MoveUp(mino, 1);
-            minoMovementComponent.SetMinoOrientation(endOrientation);
+            MoveUp(1);
+            currentMinoMovement.SetMinoOrientation(endOrientation);
         }
     }
 
-    public void RotateMinoBlock(GameObject mino, Direction dir)
+    public void RotateMinoBlock(Direction dir)
     {
-        currentMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
-        minoMovementComponent = mino.GetComponent<MinoMovement>();
+        currentMinoBlock = gameObject.GetComponent<MinoBlock>();
+        currentMinoMovement = gameObject.GetComponent<MinoMovement>();
         int counter = 0;
 
         // rotate relative to our current orientation
         switch (currentMinoBlock.activeMinoOrientation)
         {
-            case MinoOrientation.flat:
+            case Orientation.flat:
 
                 switch (dir)
                 {
                     case Direction.left:
-                        foreach (GameObject piece in currentMinoBlock.leftPieces)
+                        for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.leftPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -408,17 +380,17 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.left);
+                            currentMinoMovement.SetMinoOrientation(Orientation.left);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.left);
+                            Kick(Orientation.left);
                         }
                         break;
                     case Direction.right:
-                        foreach (GameObject piece in currentMinoBlock.rightPieces)
+                        for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.rightPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -427,24 +399,24 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.right);
+                            currentMinoMovement.SetMinoOrientation(Orientation.right);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.right);
+                            Kick(Orientation.right);
                         }
                         break;
                 }
                 break;
 
-            case MinoOrientation.left:
+            case Orientation.left:
 
                 switch (dir)
                 {
                     case Direction.left: //flipped
-                        foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                        for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.flippedPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -453,11 +425,11 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flipped);
+                            currentMinoMovement.SetMinoOrientation(Orientation.flipped);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.flipped);
+                            Kick(Orientation.flipped);
                             /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.left, MinoOrientation.flipped);
@@ -465,9 +437,9 @@ public class MinoMovement : MonoBehaviour
                         }
                         break;
                     case Direction.right: //flat
-                        foreach (GameObject piece in currentMinoBlock.flatPieces)
+                        for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.flatPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -476,11 +448,11 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
+                            currentMinoMovement.SetMinoOrientation(Orientation.flat);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.flat);
+                            Kick(Orientation.flat);
                             /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.left, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.left, MinoOrientation.flat);
@@ -490,14 +462,14 @@ public class MinoMovement : MonoBehaviour
                 }
                 break;
 
-            case MinoOrientation.right:
+            case Orientation.right:
 
                 switch (dir)
                 {
                     case Direction.left: //flat
-                        foreach (GameObject piece in currentMinoBlock.flatPieces)
+                        for (int i = 0; i < currentMinoBlock.flatPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.flatPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -506,11 +478,11 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flat);
+                            currentMinoMovement.SetMinoOrientation(Orientation.flat);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.flat);
+                            Kick(Orientation.flat);
                             /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.right, MinoOrientation.flat);
@@ -519,9 +491,9 @@ public class MinoMovement : MonoBehaviour
                         }
                         break;
                     case Direction.right: //flipped
-                        foreach (GameObject piece in currentMinoBlock.flippedPieces)
+                        for (int i = 0; i < currentMinoBlock.flippedPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.flippedPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -530,11 +502,11 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.flipped);
+                            currentMinoMovement.SetMinoOrientation(Orientation.flipped);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.flipped);
+                            Kick(Orientation.flipped);
                             /*else if (currentMinoBlock.activeMinoType == MinoType.iMino && currentMinoBlock.CanMoveHorizontal(Direction.right, currentMinoBlock.activeMinoOrientation))
                             {
                                 IMinoKick(mino, Direction.right, MinoOrientation.flipped);
@@ -544,14 +516,14 @@ public class MinoMovement : MonoBehaviour
                 }
                 break;
 
-            case MinoOrientation.flipped:
+            case Orientation.flipped:
 
                 switch (dir)
                 {
                     case Direction.left: //right
-                        foreach (GameObject piece in currentMinoBlock.rightPieces)
+                        for (int i = 0; i < currentMinoBlock.rightPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.rightPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -560,18 +532,18 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.right);
+                            currentMinoMovement.SetMinoOrientation(Orientation.right);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.right);
+                            Kick(Orientation.right);
                         }
                         break;
 
                     case Direction.right: //left
-                        foreach (GameObject piece in currentMinoBlock.leftPieces)
+                        for (int i = 0; i < currentMinoBlock.leftPieces.Length; i++)
                         {
-                            currentMinoPiece = piece.gameObject.GetComponent<MinoPiece>();
+                            currentMinoPiece = currentMinoBlock.leftPieces[i].gameObject.GetComponent<MinoPiece>();
                             if (currentMinoPiece.isColliding)
                             {
                                 counter++;
@@ -580,18 +552,15 @@ public class MinoMovement : MonoBehaviour
 
                         if (counter == 0)
                         {
-                            minoMovementComponent.SetMinoOrientation(MinoOrientation.left);
+                            currentMinoMovement.SetMinoOrientation(Orientation.left);
                         }
                         else
                         {
-                            Kick(mino, MinoOrientation.left);
+                            Kick(Orientation.left);
                         }
                         break;
                 }
                 break;
         }
     }
-
-
-
 }

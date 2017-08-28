@@ -511,10 +511,6 @@ Prefab:
       propertyPath: m_Name
       value: TMinoTemplate
       objectReference: {fileID: 0}
-    - target: {fileID: 4691200384760894, guid: 8383e6e37d2878b46a5872b662400f2d, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8383e6e37d2878b46a5872b662400f2d, type: 2}
   m_IsPrefabParent: 0
@@ -779,7 +775,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 754861412}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_MotionVectors: 1
@@ -863,13 +859,15 @@ MonoBehaviour:
   fastGravityDelay: 0.05
   currentGravityDelay: 0
   buttonTimer: 0
-  buttonHoldDelay: 0.4
+  buttonHoldDelay: 0.5
   movedOnce: 0
   moveRepeatTimer: 0
   moveRepeatDelay: 5
   lockTimer: 0
   lockTimerDelay: 1
-  minoSpawner: {fileID: 683381981}
+  minoBlockLayerMask:
+    serializedVersion: 2
+    m_Bits: 1536
   activeMino: {fileID: 0}
   nextMino1: {fileID: 0}
   nextMino2: {fileID: 0}
@@ -882,9 +880,6 @@ MonoBehaviour:
   - {fileID: 1329408497281924, guid: 2f5fdcdaba8248d41a263726a8370af9, type: 2}
   - {fileID: 1153994109899070, guid: 8383e6e37d2878b46a5872b662400f2d, type: 2}
   - {fileID: 1474732568046194, guid: 86acb74b02d838f42b315c3ef80522cc, type: 2}
-  minoBlockLayerMask:
-    serializedVersion: 2
-    m_Bits: 1536
   rows:
   - {fileID: 1515464595}
   - {fileID: 73099215}
