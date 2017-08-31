@@ -14,11 +14,11 @@ public class GameManger : MonoBehaviour
 {
     public static GameManger instance;
 
-    private MinoMovement activeMinoMovement;
     private MinoBlock activeMinoMinoBlock;
+    private MinoBlock ghostMinoMinoBlock;
 
     [HideInInspector] public float minoTimer = 0f;
-    [Tooltip("Time until a new mino is spawned.")]public float minoSpawnDelay = 1f;
+    [Tooltip("Time until a new mino is spawned.")] public float minoSpawnDelay = 1f;
 
     [HideInInspector] public float gravityTimer = 0f;
     [Tooltip("The time until pieces fall one line.")] public float gravityDelay = 0.75f;
@@ -35,9 +35,13 @@ public class GameManger : MonoBehaviour
     [HideInInspector] public float lockTimer = 0f;
     [Tooltip("How long until a mino touching the floor is locked in place.")] public float lockTimerDelay = 0.5f;
 
+    [Tooltip("How long a row is 'highlighted' before it is cleared.")] public float rowClearDelay = 1f;
+
     public LayerMask minoBlockLayerMask;
+    public LayerMask rowLayerMask;
 
     public GameObject activeMino;
+    public GameObject ghostMino;
     public GameObject nextMino1;
     public GameObject nextMino2;
     public GameObject nextMino3;
@@ -48,6 +52,9 @@ public class GameManger : MonoBehaviour
     private float inputVertical;
     private bool inputRotateLeft;
     private bool inputRotateRight;
+
+    private bool lineClearInProgress = false;
+    private List<int> fullRows;
 
     public Row[] rows;
 
@@ -64,7 +71,7 @@ public class GameManger : MonoBehaviour
 
     private void Update()
     {
-        if (instance.activeMino == null) //if there's no activeMino spawn one
+        if (instance.activeMino == null && lineClearInProgress == false) //if there's no activeMino spawn one
         {
             minoTimer += Time.deltaTime;
 
@@ -77,35 +84,97 @@ public class GameManger : MonoBehaviour
                 SpawnActiveMino();
                 currentGravityDelay = gravityDelay;
                 activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
-                activeMinoMovement = instance.activeMino.GetComponent<MinoMovement>();
             }
         }
-        else // if there's an activeMino continue the game loop
+        else if (instance.activeMino != null && lineClearInProgress == false) // if there's an activeMino continue the game loop
         {
             GetPlayerInput();
+            UpdateGhostMino();
             gravityTimer += Time.deltaTime;
 
+            // move down if we can, otherwise start the lock timer/lock mino/clear rows
             if (gravityTimer > currentGravityDelay)
             {
                 if (activeMinoMinoBlock.CanMoveDown())
                 {
-                    activeMinoMovement.MoveDown(1);
+                    activeMinoMinoBlock.MoveDown(1);
                     gravityTimer = 0;
                 }
                 else
                 {
-                    instance.LockMino();
+                    lockTimer += Time.deltaTime;
+
+                    if (lockTimer > lockTimerDelay)
+                    {
+                        minoTimer = 0;
+                        lockTimer = 0;
+
+                        instance.LockActiveMino();
+                        Destroy(instance.activeMino.gameObject);
+                        Destroy(instance.ghostMino.gameObject);
+
+                        // check to see if there are any lines that need to be cleared
+                        fullRows = new List<int>();
+
+                        for (int i = 0; i < instance.rows.Length; i++)
+                        {
+                            if (instance.rows[i].IsRowFull())
+                            {
+                                fullRows.Add(i);
+                            }
+                        }
+
+                        if (fullRows.Count > 0)
+                        {
+                            StartCoroutine(ClearRows(fullRows));
+                        }
+                    }
                 }
             }
+        }
+    }
 
-            //activeMinoMinoBlock.SnapToGrid();
+    private void UpdateGhostMino()
+    {
+        ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
 
-            // check to see if there are any lines that need to be cleared
-            for (int i = 0; i < instance.rows.Length; i++)
+        if (ghostMinoMinoBlock.activeMinoOrientation != activeMinoMinoBlock.activeMinoOrientation)
+        {
+            ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
+        }
+
+        instance.ghostMino.gameObject.transform.position = new Vector3(instance.activeMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), instance.ghostMino.gameObject.transform.position.z);
+    }
+
+    private IEnumerator ClearRows(List<int> fullRows)
+    {
+        lineClearInProgress = true;
+
+        for (int i = 0; i < fullRows.Count; i++)
+        {
+            instance.rows[fullRows[i]].HighlightRow();
+        }
+
+        yield return new WaitForSeconds(rowClearDelay);
+
+        for (int i = 0; i < fullRows.Count; i++)
+        {
+            instance.rows[fullRows[i]].DestroyRow();
+        }
+
+        //Debug.Log("Cleared " + fullRows.Count + " row(s)");
+
+        for (int i = 0; i < fullRows.Count; i++)
+        {
+            for (int j = fullRows[i] + 1; j < instance.rows.Length; j++)
             {
-                instance.rows[i].CheckRow();
+                //Debug.Log("Row " + fullRows[i] + " cleared, row " + j + " will be moved down.");
+
+                instance.rows[j - i].MoveRowDown();
             }
         }
+
+        lineClearInProgress = false;
     }
 
     private void GetPlayerInput()
@@ -127,13 +196,13 @@ public class GameManger : MonoBehaviour
                 if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.activeMinoOrientation) == true)
                 {
                     //Debug.Log("move continuously");
-                    activeMinoMovement.MoveHorizontal(Direction.left, 1);
+                    activeMinoMinoBlock.MoveHorizontal(Direction.left, 1);
                     moveRepeatTimer = 0;
                 }
                 else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.activeMinoOrientation) == true)
                 {
                     //Debug.Log("move once");
-                    activeMinoMovement.MoveHorizontal(Direction.left, 1);
+                    activeMinoMinoBlock.MoveHorizontal(Direction.left, 1);
                     movedOnce = true;
                 }
             }
@@ -153,42 +222,47 @@ public class GameManger : MonoBehaviour
                 if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.activeMinoOrientation) == true)
                 {
                     //Debug.Log("move continuously");
-                    activeMinoMovement.MoveHorizontal(Direction.right, 1);
+                    activeMinoMinoBlock.MoveHorizontal(Direction.right, 1);
                     moveRepeatTimer = 0;
                 }
                 else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.activeMinoOrientation) == true)
                 {
                     //Debug.Log("move once");
-                    activeMinoMovement.MoveHorizontal(Direction.right, 1);
+                    activeMinoMinoBlock.MoveHorizontal(Direction.right, 1);
                     movedOnce = true;
                 }
             }
 
             if (inputRotateLeft)
             {
-                activeMinoMovement.RotateMinoBlock(Direction.left);
+                activeMinoMinoBlock.RotateMinoBlock(Direction.left);
             }
 
             if (inputRotateRight)
             {
-                activeMinoMovement.RotateMinoBlock(Direction.right);
+                activeMinoMinoBlock.RotateMinoBlock(Direction.right);
             }
 
-            if (inputVertical < 0) // if down input
+            if (inputVertical > 0) // if up input
             {
-                currentGravityDelay = fastGravityDelay;
+                activeMinoMinoBlock.HardDrop();
             }
 
             if (inputVertical == 0) // if no veritcal input
             {
                 currentGravityDelay = gravityDelay;
             }
+
+            if (inputVertical < 0) // if down input
+            {
+                currentGravityDelay = fastGravityDelay;
+            }
         }
     }
 
     private static void InitMinoQueue()
     {
-        MinoMovement currentMinoMovement;
+        MinoBlock currentMinoBlock;
         int randomIndex1;
         int randomIndex2;
         int randomIndex3;
@@ -211,47 +285,58 @@ public class GameManger : MonoBehaviour
 
         instance.nextMino1 = Instantiate(instance.minoPrefabs[randomIndex1], MinoPreview1.instance.transform.position, Quaternion.identity);
         instance.nextMino1.name = "NextMino1";
-        currentMinoMovement = instance.nextMino1.GetComponent<MinoMovement>();
-        currentMinoMovement.SetMinoOrientation(Orientation.flat);
+        currentMinoBlock = instance.nextMino1.GetComponent<MinoBlock>();
+        currentMinoBlock.SetMinoOrientation(Orientation.flat);
 
         instance.nextMino2 = Instantiate(instance.minoPrefabs[randomIndex2], MinoPreview2.instance.transform.position, Quaternion.identity);
         instance.nextMino2.name = "NextMino2";
-        currentMinoMovement = instance.nextMino2.GetComponent<MinoMovement>();
-        currentMinoMovement.SetMinoOrientation(Orientation.flat);
+        currentMinoBlock = instance.nextMino2.GetComponent<MinoBlock>();
+        currentMinoBlock.SetMinoOrientation(Orientation.flat);
 
         instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex3], MinoPreview3.instance.transform.position, Quaternion.identity);
         instance.nextMino3.name = "NextMino3";
-        currentMinoMovement = instance.nextMino3.GetComponent<MinoMovement>();
-        currentMinoMovement.SetMinoOrientation(Orientation.flat);
+        currentMinoBlock = instance.nextMino3.GetComponent<MinoBlock>();
+        currentMinoBlock.SetMinoOrientation(Orientation.flat);
     }
 
     private static void SpawnActiveMino()
     {
-        MinoMovement currentMinoMovement;
+        MinoBlock activeMinoMinoBlock;
+        MinoBlock ghostMinoMinoBlock;
         MinoBlock nextMino1minoBlock;
         MinoBlock nextMino2minoBlock;
+        MinoBlock nextMino3minoBlock;
+        Renderer[] currentMinoPieceRenderers;
 
         if (instance.activeMino == null)
         {
             instance.activeMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
             instance.activeMino.name = "ActiveMino";
-            currentMinoMovement = instance.activeMino.GetComponent<MinoMovement>();
-            currentMinoMovement.SetMinoOrientation(Orientation.flat);
-
+            activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+            activeMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+            
+            instance.ghostMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
+            instance.ghostMino.name = "GhostMino";
+            ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
+            ghostMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+            currentMinoPieceRenderers = instance.ghostMino.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < currentMinoPieceRenderers.Length; i++)
+            {
+                currentMinoPieceRenderers[i].material.color = new Color(currentMinoPieceRenderers[i].material.color.r, currentMinoPieceRenderers[i].material.color.g, currentMinoPieceRenderers[i].material.color.b, 0.25f);
+            }
+            
             Destroy(instance.nextMino1);
             instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
             instance.nextMino1.name = "NextMino1";
-            currentMinoMovement = instance.nextMino1.GetComponent<MinoMovement>();
-            currentMinoMovement.SetMinoOrientation(Orientation.flat);
+            nextMino1minoBlock = instance.nextMino1.GetComponent<MinoBlock>();
+            nextMino1minoBlock.SetMinoOrientation(Orientation.flat);
 
             Destroy(instance.nextMino2);
             instance.nextMino2 = Instantiate(instance.nextMino3, MinoPreview2.instance.transform.position, Quaternion.identity);
             instance.nextMino2.name = "NextMino2";
-            currentMinoMovement = instance.nextMino2.GetComponent<MinoMovement>();
-            currentMinoMovement.SetMinoOrientation(Orientation.flat);
-
-            nextMino1minoBlock = instance.nextMino1.GetComponent<MinoBlock>();
             nextMino2minoBlock = instance.nextMino2.GetComponent<MinoBlock>();
+            nextMino2minoBlock.SetMinoOrientation(Orientation.flat);
+
             int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
 
             do
@@ -262,124 +347,114 @@ public class GameManger : MonoBehaviour
             Destroy(instance.nextMino3);
             instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex], MinoPreview3.instance.transform.position, Quaternion.identity);
             instance.nextMino3.name = "NextMino3";
-            currentMinoMovement = instance.nextMino3.GetComponent<MinoMovement>();
-            currentMinoMovement.SetMinoOrientation(Orientation.flat);
+            nextMino3minoBlock = instance.nextMino3.GetComponent<MinoBlock>();
+            nextMino3minoBlock.SetMinoOrientation(Orientation.flat);
 
             instance.activeMino.layer = 8;
         }
         else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
     }
 
-    public void LockMino()
+    public void LockActiveMino()
     {
         if (instance.activeMino != null)
         {
-            lockTimer += Time.deltaTime;
-
-            if (lockTimer > lockTimerDelay)
+            // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
+            switch (activeMinoMinoBlock.activeMinoOrientation)
             {
-                minoTimer = 0;
-                lockTimer = 0;
+                case Orientation.flat:
+                    for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+                    {
+                        activeMinoMinoBlock.flatPieces[i].gameObject.layer = 9;
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
+                    }
+                    break;
 
-                // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
-                switch (activeMinoMinoBlock.activeMinoOrientation)
-                {
-                    case Orientation.flat:
-                        for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
-                        {
-                            activeMinoMinoBlock.flatPieces[i].gameObject.layer = 9;
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
-                        }
-                        break;
+                case Orientation.left:
+                    for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+                    {
+                        activeMinoMinoBlock.leftPieces[i].gameObject.layer = 9;
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
+                    }
+                    break;
 
-                    case Orientation.left:
-                        for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
-                        {
-                            activeMinoMinoBlock.leftPieces[i].gameObject.layer = 9;
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
-                        }
-                        break;
+                case Orientation.right:
+                    for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+                    {
+                        activeMinoMinoBlock.rightPieces[i].gameObject.layer = 9;
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
+                    }
+                    break;
 
-                    case Orientation.right:
-                        for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
-                        {
-                            activeMinoMinoBlock.rightPieces[i].gameObject.layer = 9;
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flippedPieces[i].gameObject);
-                        }
-                        break;
+                case Orientation.flipped:
+                    for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+                    {
+                        Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
+                    }
+                    for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+                    {
+                        activeMinoMinoBlock.flippedPieces[i].gameObject.layer = 9;
+                    }
+                    break;
+            }
+            instance.activeMino.layer = 0;
 
-                    case Orientation.flipped:
-                        for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.flatPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.leftPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
-                        {
-                            Destroy(activeMinoMinoBlock.rightPieces[i].gameObject);
-                        }
-                        for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
-                        {
-                            activeMinoMinoBlock.flippedPieces[i].gameObject.layer = 9;
-                        }
-                        break;
-                }
-                instance.activeMino.layer = 0;
-
-                for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
-                {
-                    activeMinoMinoBlock.flatPieces[i].transform.parent = null;
-                }
-                for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
-                {
-                    activeMinoMinoBlock.leftPieces[i].transform.parent = null;
-                }
-                for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
-                {
-                    activeMinoMinoBlock.rightPieces[i].transform.parent = null;
-                }
-                for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
-                {
-                    activeMinoMinoBlock.flippedPieces[i].transform.parent = null;
-                }
-
-                Destroy(instance.activeMino.gameObject);
+            for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
+            {
+                activeMinoMinoBlock.flatPieces[i].transform.parent = null;
+            }
+            for (int i = 0; i < activeMinoMinoBlock.leftPieces.Length; i++)
+            {
+                activeMinoMinoBlock.leftPieces[i].transform.parent = null;
+            }
+            for (int i = 0; i < activeMinoMinoBlock.rightPieces.Length; i++)
+            {
+                activeMinoMinoBlock.rightPieces[i].transform.parent = null;
+            }
+            for (int i = 0; i < activeMinoMinoBlock.flippedPieces.Length; i++)
+            {
+                activeMinoMinoBlock.flippedPieces[i].transform.parent = null;
             }
         }
     }
