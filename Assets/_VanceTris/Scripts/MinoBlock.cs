@@ -30,11 +30,6 @@ public class MinoBlock : MonoBehaviour
 
     private MeshRenderer currentMeshRenderer;
 
-    public void SnapToGrid()
-    {
-        transform.position = new Vector3((Mathf.Round(transform.position.x * 2)) / 2, (Mathf.Round(transform.position.y * 2)) / 2, (Mathf.Round(transform.position.z * 2)) / 2);
-    }
-
     public bool CanMoveDown()
     {
         GameObject[] currentMinoPieces = null;
@@ -397,6 +392,7 @@ public class MinoBlock : MonoBehaviour
     public void HardDrop()
     {
         gameObject.transform.position = new Vector3(gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), gameObject.transform.position.z);
+        GameManger.instance.lockTimer = GameManger.instance.lockTimerDelay;
     }
 
     public void Kick(Orientation endOrientation)

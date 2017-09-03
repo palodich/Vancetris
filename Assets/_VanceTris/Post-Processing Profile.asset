@@ -29,9 +29,9 @@ MonoBehaviour:
     m_Settings:
       excludeSkybox: 1
   antialiasing:
-    m_Enabled: 0
+    m_Enabled: 1
     m_Settings:
-      method: 1
+      method: 0
       fxaaSettings:
         preset: 2
       taaSettings:
@@ -283,8 +283,8 @@ MonoBehaviour:
   chromaticAberration:
     m_Enabled: 1
     m_Settings:
-      spectralTexture: {fileID: 0}
-      intensity: 0.35
+      spectralTexture: {fileID: 2800000, guid: 42183971d24cfe443a346e7ec6e83bbb, type: 3}
+      intensity: 0.2
   grain:
     m_Enabled: 1
     m_Settings:

@@ -204,13 +204,27 @@ public class GameManger : MonoBehaviour
 
     private void UpdateGhostMino()
     {
+        MeshRenderer[] ghostMinoPieceMeshRenderers;
+        ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
         ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
 
-        if (ghostMinoMinoBlock.activeMinoOrientation != activeMinoMinoBlock.activeMinoOrientation)
+        float distance = Vector3.Distance(instance.activeMino.transform.position, instance.ghostMino.transform.position);
+
+        // TODO: maybe have a more sophisticated method of determining distance,
+        // the problem with Vector3.distance is the ghost piece may seem to disappear
+        // inconsistently depending on what piece and orientation you are in.
+        if (distance < 4)
+        {
+            for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
+            {
+                ghostMinoPieceMeshRenderers[i].enabled = false;
+            }
+        }
+        else
         {
             ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
         }
-
+        
         instance.ghostMino.gameObject.transform.position = new Vector3(instance.activeMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), instance.ghostMino.gameObject.transform.position.z);
     }
 
@@ -390,7 +404,7 @@ public class GameManger : MonoBehaviour
             currentMinoPieceRenderers = instance.ghostMino.GetComponentsInChildren<Renderer>();
             for (int i = 0; i < currentMinoPieceRenderers.Length; i++)
             {
-                currentMinoPieceRenderers[i].material.color = new Color(currentMinoPieceRenderers[i].material.color.r, currentMinoPieceRenderers[i].material.color.g, currentMinoPieceRenderers[i].material.color.b, 0.25f);
+                currentMinoPieceRenderers[i].material.color = new Color(1,1,1,1);
             }
 
             Destroy(instance.nextMino1);
