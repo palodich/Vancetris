@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Button
+public enum DirectionButton
 {
-    left,
-    right,
-    up,
-    down
+    left, right, up, down
+}
+
+public enum GameState
+{
+    inGame, inMenu
 }
 
 public class GameManger : MonoBehaviour
@@ -47,6 +49,8 @@ public class GameManger : MonoBehaviour
     public GameObject nextMino3;
     public GameObject[] minoPrefabs;
 
+    [SerializeField] private GameState currentGameState;
+
     private float inputHorizontal;
     private float lastInputHorizontal;
     private float inputVertical;
@@ -58,6 +62,8 @@ public class GameManger : MonoBehaviour
 
     public Row[] rows;
 
+    private bool firstStart;
+
     private void Awake()
     {
         instance = this;
@@ -65,11 +71,73 @@ public class GameManger : MonoBehaviour
 
     private void Start()
     {
-        InitMinoQueue();
-        minoTimer = minoSpawnDelay; //make a mino drop immediately
+        SetGameState(GameState.inMenu);
+
+        firstStart = true;
     }
 
     private void Update()
+    {
+        if (GetGameState() == GameState.inGame && IsGameInProgress())
+        {
+            GameLoop();
+        }
+    }
+
+    public void StartNewGame()
+    {
+        if (!firstStart)
+        {
+            ClearGame();
+        }
+        InitMinoQueue();
+        minoTimer = minoSpawnDelay; //make a mino drop immediately
+        firstStart = false;
+    }
+
+    private void ClearGame()
+    {
+        Destroy(activeMino.gameObject);
+        Destroy(ghostMino.gameObject);
+        Destroy(nextMino1.gameObject);
+        Destroy(nextMino2.gameObject);
+        Destroy(nextMino3.gameObject);
+
+        for (int i = 0; i < instance.rows.Length; i++)
+        {
+            instance.rows[i].DestroyRow();
+        }
+    }
+
+    public void SetGameState(GameState newGameState)
+    {
+        /*switch (newGameState)
+        {
+            case GameState.inGame:
+                break;
+
+            case GameState.inMenu:
+                break;
+        }*/
+
+        currentGameState = newGameState;
+    }
+
+    public GameState GetGameState()
+    {
+        return currentGameState;
+    }
+
+    public bool IsGameInProgress()
+    {
+        if (instance.nextMino1 != null && instance.nextMino2 != null && instance.nextMino3 != null)
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    private void GameLoop()
     {
         if (instance.activeMino == null && lineClearInProgress == false) //if there's no activeMino spawn one
         {
@@ -314,7 +382,7 @@ public class GameManger : MonoBehaviour
             instance.activeMino.name = "ActiveMino";
             activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
             activeMinoMinoBlock.SetMinoOrientation(Orientation.flat);
-            
+
             instance.ghostMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
             instance.ghostMino.name = "GhostMino";
             ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
@@ -324,7 +392,7 @@ public class GameManger : MonoBehaviour
             {
                 currentMinoPieceRenderers[i].material.color = new Color(currentMinoPieceRenderers[i].material.color.r, currentMinoPieceRenderers[i].material.color.g, currentMinoPieceRenderers[i].material.color.b, 0.25f);
             }
-            
+
             Destroy(instance.nextMino1);
             instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
             instance.nextMino1.name = "NextMino1";
