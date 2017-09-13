@@ -26,7 +26,7 @@ public class Row : MonoBehaviour
         for (int i = 0; i < hits.Length; i++)
         {
             currentRenderer = hits[i].collider.GetComponent<Renderer>();
-            currentRenderer.material.color = new Color(1,1,1,1);
+            currentRenderer.material.color = new Color(1, 1, 1, 1);
         }
     }
 

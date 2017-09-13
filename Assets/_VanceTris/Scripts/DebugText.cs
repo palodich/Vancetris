@@ -21,7 +21,7 @@ public class DebugText : MonoBehaviour
         {
             activeMinoBlock = GameManger.instance.activeMino.GetComponent<MinoBlock>();
 
-            text  = "activeMino: " + GameManger.instance.activeMino.name + "\n";
+            text = "activeMino: " + GameManger.instance.activeMino.name + "\n";
             text += "activeMinoType: " + activeMinoBlock.activeMinoType + "\n";
             text += "activeMinoOrientation: " + activeMinoBlock.activeMinoOrientation + "\n\n";
 

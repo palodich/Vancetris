@@ -286,6 +286,32 @@ public class MinoBlock : MonoBehaviour
         Destroy(testBlock.gameObject);
     }*/
 
+    public static GameObject[] GetActiveMinoPieces(MinoBlock minoBlock)
+    {
+        GameObject[] activeMinoPieces = null;
+
+        switch (minoBlock.activeMinoOrientation)
+        {
+            case Orientation.flat:
+                activeMinoPieces = minoBlock.flatPieces;
+                break;
+
+            case Orientation.left:
+                activeMinoPieces = minoBlock.leftPieces;
+                break;
+
+            case Orientation.right:
+                activeMinoPieces = minoBlock.rightPieces;
+                break;
+
+            case Orientation.flipped:
+                activeMinoPieces = minoBlock.flippedPieces;
+                break;
+        }
+
+        return activeMinoPieces;
+    }
+
     public static float GetHardDropYPosition()
     {
         MinoBlock testBlock;
@@ -301,28 +327,8 @@ public class MinoBlock : MonoBehaviour
         testBlock.name = "testBlock";
         testBlock.gameObject.layer = 0;
 
-        switch (testBlock.activeMinoOrientation)
-        {
-            case Orientation.flat:
-                testBlockPieces = testBlock.flatPieces;
-                activeMinoPieces = activeMinoMinoBlock.flatPieces;
-                break;
-
-            case Orientation.left:
-                testBlockPieces = testBlock.leftPieces;
-                activeMinoPieces = activeMinoMinoBlock.leftPieces;
-                break;
-
-            case Orientation.right:
-                testBlockPieces = testBlock.rightPieces;
-                activeMinoPieces = activeMinoMinoBlock.rightPieces;
-                break;
-
-            case Orientation.flipped:
-                testBlockPieces = testBlock.flippedPieces;
-                activeMinoPieces = activeMinoMinoBlock.flippedPieces;
-                break;
-        }
+        testBlockPieces = GetActiveMinoPieces(testBlock);
+        activeMinoPieces = GetActiveMinoPieces(activeMinoMinoBlock);
 
         for (int i = 0; i < testBlockPieces.Length; i++)
         {
