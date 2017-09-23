@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using cakeslice;
 
 // these should match the GameManager.instance.minoPrefabs[] array
 public enum MinoType
@@ -310,6 +311,39 @@ public class MinoBlock : MonoBehaviour
         }
 
         return activeMinoPieces;
+    }
+
+    public static Outline[] GetActiveMinoPieceOutlineComponent(MinoBlock minoBlock)
+    {
+        GameObject[] activeMinoPieces = null;
+
+        switch (minoBlock.activeMinoOrientation)
+        {
+            case Orientation.flat:
+                activeMinoPieces = minoBlock.flatPieces;
+                break;
+
+            case Orientation.left:
+                activeMinoPieces = minoBlock.leftPieces;
+                break;
+
+            case Orientation.right:
+                activeMinoPieces = minoBlock.rightPieces;
+                break;
+
+            case Orientation.flipped:
+                activeMinoPieces = minoBlock.flippedPieces;
+                break;
+        }
+
+        Outline[] activeMinoPiecesOutlineComponent = new Outline[activeMinoPieces.Length];
+
+        for (int i = 0; i < activeMinoPieces.Length; i++)
+        {
+            activeMinoPiecesOutlineComponent[i] = activeMinoPieces[i].GetComponent<Outline>();
+        }
+
+        return activeMinoPiecesOutlineComponent;
     }
 
     public static float GetHardDropYPosition()

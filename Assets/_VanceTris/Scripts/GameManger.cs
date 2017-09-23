@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using cakeslice;
 
 public enum DirectionButton
 {
@@ -49,6 +50,8 @@ public class GameManger : MonoBehaviour
     public GameObject nextMino3;
     public GameObject[] minoPrefabs;
 
+    public Row[] rows;
+
     [SerializeField] private GameState _currentGameState;
 
     private float inputHorizontal;
@@ -60,8 +63,6 @@ public class GameManger : MonoBehaviour
 
     private bool lineClearInProgress = false;
     private List<int> fullRows;
-
-    public Row[] rows;
 
     private bool firstStart;
 
@@ -117,7 +118,8 @@ public class GameManger : MonoBehaviour
         MinoBlock nextMino1minoBlock;
         MinoBlock nextMino2minoBlock;
         MinoBlock nextMino3minoBlock;
-        Renderer[] currentMinoPieceRenderers;
+        Outline[] ghostMinoPiecesOutline;
+        MeshRenderer[] ghostMinoPieceMeshRenderers;
 
         if (instance.activeMino == null)
         {
@@ -132,10 +134,15 @@ public class GameManger : MonoBehaviour
             instance.ghostMino.name = "GhostMino";
             ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
             ghostMinoMinoBlock.SetMinoOrientation(Orientation.flat);
-            currentMinoPieceRenderers = instance.ghostMino.GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < currentMinoPieceRenderers.Length; i++)
+            ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
+            for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
             {
-                currentMinoPieceRenderers[i].material.color = new Color(1, 1, 1, 1);
+                ghostMinoPiecesOutline[i].enabled = true;
+            }
+            ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
+            {
+                ghostMinoPieceMeshRenderers[i].enabled = false;
             }
 
             Destroy(instance.nextMino1);
@@ -276,24 +283,29 @@ public class GameManger : MonoBehaviour
     private void UpdateGhostMino()
     {
         MeshRenderer[] ghostMinoPieceMeshRenderers;
-        ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
         ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
+        Outline[] ghostMinoPiecesOutline;
 
-        float distance = Vector3.Distance(instance.activeMino.transform.position, instance.ghostMino.transform.position);
-
-        // TODO: maybe have a more sophisticated method of determining distance,
-        // the problem with Vector3.distance is the ghost piece may seem to disappear
-        // inconsistently depending on what piece and orientation you are in.
-        if (distance < 4)
+        ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
+        for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
-            for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
-            {
-                ghostMinoPieceMeshRenderers[i].enabled = false;
-            }
+            ghostMinoPiecesOutline[i].enabled = false;
         }
-        else
+
+        ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
+
+        ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
+        for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
-            ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
+            ghostMinoPiecesOutline[i].enabled = true;
+        }
+
+        // TODO: Disabling the mesh renderer after SetMinoOrientation is stupid, maybe add an option to SetMinoOrientation to rotate but not enable the MeshRenderer
+
+        ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
+        for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
+        {
+            ghostMinoPieceMeshRenderers[i].enabled = false;
         }
 
         instance.ghostMino.gameObject.transform.position = new Vector3(instance.activeMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), instance.ghostMino.gameObject.transform.position.z);
