@@ -144,97 +144,109 @@ public class MinoBlock : MonoBehaviour
         switch (orientation)
         {
             case Orientation.flat:
-                for (int i = 0; i < flatPieces.Length; i++)
+                if (name != "GhostMino")
                 {
-                    currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = true;
-                }
-                for (int i = 0; i < leftPieces.Length; i++)
-                {
-                    currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < rightPieces.Length; i++)
-                {
-                    currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < flippedPieces.Length; i++)
-                {
-                    currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
+                    for (int i = 0; i < flatPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = true;
+                    }
+                    for (int i = 0; i < leftPieces.Length; i++)
+                    {
+                        currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < rightPieces.Length; i++)
+                    {
+                        currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < flippedPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
                 }
                 activeMinoOrientation = Orientation.flat;
                 break;
 
             case Orientation.left:
-                for (int i = 0; i < flatPieces.Length; i++)
+                if (name != "GhostMino")
                 {
-                    currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < leftPieces.Length; i++)
-                {
-                    currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = true;
-                }
-                for (int i = 0; i < rightPieces.Length; i++)
-                {
-                    currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < flippedPieces.Length; i++)
-                {
-                    currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
+                    for (int i = 0; i < flatPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < leftPieces.Length; i++)
+                    {
+                        currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = true;
+                    }
+                    for (int i = 0; i < rightPieces.Length; i++)
+                    {
+                        currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < flippedPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
                 }
                 activeMinoOrientation = Orientation.left;
                 break;
 
             case Orientation.right:
-                for (int i = 0; i < flatPieces.Length; i++)
+                if (name != "GhostMino")
                 {
-                    currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < leftPieces.Length; i++)
-                {
-                    currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < rightPieces.Length; i++)
-                {
-                    currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = true;
-                }
-                for (int i = 0; i < flippedPieces.Length; i++)
-                {
-                    currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
+                    for (int i = 0; i < flatPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < leftPieces.Length; i++)
+                    {
+                        currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < rightPieces.Length; i++)
+                    {
+                        currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = true;
+                    }
+                    for (int i = 0; i < flippedPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
                 }
                 activeMinoOrientation = Orientation.right;
                 break;
 
             case Orientation.flipped:
-                for (int i = 0; i < flatPieces.Length; i++)
+                if (name != "GhostMino")
                 {
-                    currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < leftPieces.Length; i++)
-                {
-                    currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < rightPieces.Length; i++)
-                {
-                    currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = false;
-                }
-                for (int i = 0; i < flippedPieces.Length; i++)
-                {
-                    currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
-                    currentMeshRenderer.enabled = true;
+                    for (int i = 0; i < flatPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flatPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < leftPieces.Length; i++)
+                    {
+                        currentMeshRenderer = leftPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < rightPieces.Length; i++)
+                    {
+                        currentMeshRenderer = rightPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = false;
+                    }
+                    for (int i = 0; i < flippedPieces.Length; i++)
+                    {
+                        currentMeshRenderer = flippedPieces[i].GetComponent<MeshRenderer>();
+                        currentMeshRenderer.enabled = true;
+                    }
                 }
                 activeMinoOrientation = Orientation.flipped;
                 break;

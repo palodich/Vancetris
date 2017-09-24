@@ -19,6 +19,7 @@ public class GameManger : MonoBehaviour
 
     private MinoBlock activeMinoMinoBlock;
     private MinoBlock ghostMinoMinoBlock;
+    private MinoBlock holdMinoMinoBlock;
 
     [HideInInspector] public float minoTimer = 0f;
     [Tooltip("Time until a new mino is spawned.")] public float minoSpawnDelay = 1f;
@@ -48,6 +49,7 @@ public class GameManger : MonoBehaviour
     public GameObject nextMino1;
     public GameObject nextMino2;
     public GameObject nextMino3;
+    public GameObject holdMino;
     public GameObject[] minoPrefabs;
 
     public Row[] rows;
@@ -65,6 +67,8 @@ public class GameManger : MonoBehaviour
     private List<int> fullRows;
 
     private bool firstStart;
+    private bool swappedHoldMinoLastTurn;
+    private bool canSwapHoldMino;
 
     private void Awake()
     {
@@ -171,6 +175,19 @@ public class GameManger : MonoBehaviour
             nextMino3minoBlock.SetMinoOrientation(Orientation.flat);
 
             instance.activeMino.layer = 8;
+
+            // prevent swapping if we just swapped a Mino
+            if (instance.swappedHoldMinoLastTurn)
+            {
+                instance.canSwapHoldMino = false;
+                instance.swappedHoldMinoLastTurn = false;
+            }
+            else
+            {
+                instance.canSwapHoldMino = true;
+                instance.swappedHoldMinoLastTurn = false;
+            }
+            
         }
         else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
     }
@@ -282,7 +299,6 @@ public class GameManger : MonoBehaviour
 
     private void UpdateGhostMino()
     {
-        MeshRenderer[] ghostMinoPieceMeshRenderers;
         ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
         Outline[] ghostMinoPiecesOutline;
 
@@ -298,14 +314,6 @@ public class GameManger : MonoBehaviour
         for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
             ghostMinoPiecesOutline[i].enabled = true;
-        }
-
-        // TODO: Disabling the mesh renderer after SetMinoOrientation is stupid, maybe add an option to SetMinoOrientation to rotate but not enable the MeshRenderer
-
-        ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
-        for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
-        {
-            ghostMinoPieceMeshRenderers[i].enabled = false;
         }
 
         instance.ghostMino.gameObject.transform.position = new Vector3(instance.activeMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), instance.ghostMino.gameObject.transform.position.z);
@@ -344,6 +352,12 @@ public class GameManger : MonoBehaviour
 
     private void GetPlayerInput()
     {
+        Orientation tempOrientation;
+        MinoType tempMinoType;
+        Vector3 tempPosition;
+        Outline[] ghostMinoPiecesOutline;
+        MeshRenderer[] ghostMinoPieceMeshRenderers;
+
         if (instance.activeMino != null) // make sure there's an activeMino in the scene
         {
             // we need the last horiz input to determine if the button has just been pressed, or if it's being held down
@@ -426,7 +440,72 @@ public class GameManger : MonoBehaviour
 
             if (inputSwapHoldMino)
             {
-                Debug.Log("This is when I should swap the hold mino!");
+                if (instance.holdMino == null) // if there's no mino being held, just move the active mino there
+                {
+                    instance.holdMino = Instantiate(instance.activeMino, HoldMino.instance.transform.position, Quaternion.identity);
+                    instance.holdMino.name = "HoldMino";
+                    holdMinoMinoBlock = instance.holdMino.GetComponent<MinoBlock>();
+                    holdMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+
+                    Destroy(instance.activeMino.gameObject);
+                    Destroy(instance.ghostMino.gameObject);
+
+                    swappedHoldMinoLastTurn = true;
+                }
+                else // if there's already a held mino we will have to swap it
+                {
+                    if (canSwapHoldMino)
+                    {
+                        Debug.Log("Okay I should swap shit right now");
+
+                        activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+                        holdMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+
+                        tempOrientation = activeMinoMinoBlock.activeMinoOrientation;
+                        tempMinoType = activeMinoMinoBlock.activeMinoType;
+                        tempPosition = instance.activeMino.transform.position;
+
+                        Destroy(instance.activeMino.gameObject);
+                        Destroy(instance.ghostMino.gameObject);
+
+                        // TODO: lots of redundant stuff from SpawnActiveMino, may want to make a method just for spawning an active mino anywhere with ghost piece
+                        // and have this and SpawnActiveMino use that.
+
+                        instance.activeMino = Instantiate(instance.holdMino, tempPosition, Quaternion.identity);
+                        instance.activeMino.name = "ActiveMino";
+                        activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+                        activeMinoMinoBlock.SetMinoOrientation(tempOrientation);
+
+                        instance.ghostMino = Instantiate(instance.holdMino, tempPosition, Quaternion.identity);
+                        instance.ghostMino.name = "GhostMino";
+                        ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
+                        ghostMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+                        ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
+                        for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
+                        {
+                            ghostMinoPiecesOutline[i].enabled = true;
+                        }
+                        ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
+                        for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
+                        {
+                            ghostMinoPieceMeshRenderers[i].enabled = false;
+                        }
+
+                        Destroy(instance.holdMino.gameObject);
+
+                        instance.holdMino = Instantiate(instance.minoPrefabs[(int)tempMinoType], HoldMino.instance.transform.position, Quaternion.identity);
+                        instance.holdMino.name = "HoldMino";
+                        holdMinoMinoBlock = instance.holdMino.GetComponent<MinoBlock>();
+                        holdMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+                        
+                        swappedHoldMinoLastTurn = false;
+                        canSwapHoldMino = false;
+                    }
+                    else
+                    {
+                        Debug.Log("Already swapped! Do nothing");
+                    }
+                }
             }
         }
     }
