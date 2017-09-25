@@ -140,7 +140,8 @@ public class MinoBlock : MonoBehaviour
 
     public void SetMinoOrientation(Orientation orientation)
     {
-        //set the pieces that we want to be visible
+        // set the pieces that we want to be visible, only change the MeshRenderer for non-ghostMinos, because we want the ghostMino to
+        // always have the mesh renderer off
         switch (orientation)
         {
             case Orientation.flat:
@@ -382,10 +383,11 @@ public class MinoBlock : MonoBehaviour
             currentMeshRenderer.enabled = false;
         }
 
-        do
+        // move the testBlock up until it is not colliding with anything and there is a clear path between the activeMinoBlock and the testBlock
+        while (IsColliding(testBlockPieces) == true || IsPathObstructed(testBlockPieces, activeMinoPieces) == true)
         {
             testBlock.MoveUp(1);
-        } while (IsColliding(testBlockPieces) == true || IsPathObstructed(testBlockPieces, activeMinoPieces) == true);
+        }
 
         Destroy(testBlock.gameObject);
         return testBlock.transform.position.y;
