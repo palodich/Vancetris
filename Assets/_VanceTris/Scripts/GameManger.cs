@@ -86,6 +86,8 @@ public class GameManger : MonoBehaviour
 
     private void Update()
     {
+        // only proceed through the game loop if we are actually in the game, so the game will be paused
+        // if we're in a menu, etc.
         if (GetGameState() == GameState.inGame && IsGameInProgress())
         {
             GameLoop();
@@ -94,6 +96,7 @@ public class GameManger : MonoBehaviour
 
     public void StartNewGame()
     {
+        // if there was an existing game we will need to clear it before starting again
         if (!firstStart)
         {
             ClearGame();
@@ -131,11 +134,13 @@ public class GameManger : MonoBehaviour
 
         if (instance.activeMino == null)
         {
+            // create the activeMino by copying the first nextMino
             instance.activeMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
             instance.activeMino.name = "ActiveMino";
             activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
             activeMinoMinoBlock.SetMinoOrientation(Orientation.flat);
-
+            
+            // create the ghostMino, enable the outline script, and disable the renderer, so we'll have a cool "ghost" mino
             instance.ghostMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
             instance.ghostMino.name = "GhostMino";
             ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
@@ -151,8 +156,11 @@ public class GameManger : MonoBehaviour
                 ghostMinoPieceMeshRenderers[i].enabled = false;
             }
 
+            // if our new activeMino is colliding with an existing piece it's game over man, game over!
+            // TODO: game over should probably be when a set mino is above a certain height, rather than checking for a collision
             instance.CheckForGameOver();
 
+            // create the 5 mino previews
             Destroy(instance.nextMino1);
             instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
             instance.nextMino1.name = "NextMino1";
@@ -177,13 +185,16 @@ public class GameManger : MonoBehaviour
             nextMino4minoBlock = instance.nextMino4.GetComponent<MinoBlock>();
             nextMino4minoBlock.SetMinoOrientation(Orientation.flat);
 
+            // we'll need to come up with a random mino for the 5th preview. make sure it's not the same as the last mino, so you
+            // don't end up with a bunch of repeat pieces
+
             int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
 
             while (randomIndex == (int)nextMino4minoBlock.activeMinoType)
             {
                 randomIndex = Random.Range(0, instance.minoPrefabs.Length);
             }
-
+            
             Destroy(instance.nextMino5);
             instance.nextMino5 = Instantiate(instance.minoPrefabs[randomIndex], MinoPreview5.instance.transform.position, Quaternion.identity);
             instance.nextMino5.name = "NextMino5";
@@ -203,7 +214,6 @@ public class GameManger : MonoBehaviour
                 instance.canSwapHoldMino = true;
                 instance.swappedHoldMinoLastTurn = false;
             }
-
         }
         else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
     }
@@ -285,14 +295,10 @@ public class GameManger : MonoBehaviour
         }
     }
 
-    public GameState GetGameState()
-    {
-        return _currentGameState;
-    }
-
     public bool IsGameInProgress()
     {
-        if (instance.nextMino1 != null && instance.nextMino2 != null && instance.nextMino3 != null)
+        // if none of our special minos in the scene are null then we know there is a game in progress
+        if (instance.nextMino1 != null && instance.nextMino2 != null && instance.nextMino3 != null && instance.nextMino4 != null && instance.nextMino5 != null)
         {
             return true;
         }
@@ -315,9 +321,11 @@ public class GameManger : MonoBehaviour
 
     private void UpdateGhostMino()
     {
+        // have the ghost mino mirror the orientation of the activeMino, and place it in the scene properly
         ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
         Outline[] ghostMinoPiecesOutline;
 
+        // TODO: why am I turning off the ghost piece then turning it on? will investigate later
         ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
         for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
@@ -351,14 +359,10 @@ public class GameManger : MonoBehaviour
             instance.rows[fullRows[i]].DestroyRow();
         }
 
-        //Debug.Log("Cleared " + fullRows.Count + " row(s)");
-
         for (int i = 0; i < fullRows.Count; i++)
         {
             for (int j = fullRows[i] + 1; j < instance.rows.Length; j++)
             {
-                //Debug.Log("Row " + fullRows[i] + " cleared, row " + j + " will be moved down.");
-
                 instance.rows[j - i].MoveRowDown();
             }
         }
@@ -397,7 +401,7 @@ public class GameManger : MonoBehaviour
                 }
             }
 
-            if (inputHorizontal == 0) // if no horizontal input
+            if (inputHorizontal == 0) // if no horizontal input, reset our timers
             {
                 buttonTimer = 0f;
                 moveRepeatTimer = 0f;
