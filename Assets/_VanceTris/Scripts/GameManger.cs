@@ -321,19 +321,23 @@ public class GameManger : MonoBehaviour
 
     private void UpdateGhostMino()
     {
+        // TODO: add an if-statement so that we only update the rotation if we need to
+    
         // have the ghost mino mirror the orientation of the activeMino, and place it in the scene properly
         ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
         Outline[] ghostMinoPiecesOutline;
 
-        // TODO: why am I turning off the ghost piece then turning it on? will investigate later
+        // turn off the current outline...
         ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
         for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
             ghostMinoPiecesOutline[i].enabled = false;
         }
-
+        
+        // have the ghostMino orientation match the activeMino...
         ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
 
+        // turn on the ghost outline for the new rotation
         ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
         for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
         {
