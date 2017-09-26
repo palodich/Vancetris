@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
 
     public void OnMenuButton()
     {
-        switch (GameManger.instance.GetGameState())
+        switch (GameManger.instance.CurrentGameState)
         {
             case GameState.inGame:
                 menuWindow.Open();

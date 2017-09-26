@@ -88,7 +88,7 @@ public class GameManger : MonoBehaviour
     {
         // only proceed through the game loop if we are actually in the game, so the game will be paused
         // if we're in a menu, etc.
-        if (GetGameState() == GameState.inGame && IsGameInProgress())
+        if (CurrentGameState == GameState.inGame && IsGameInProgress())
         {
             GameLoop();
         }
