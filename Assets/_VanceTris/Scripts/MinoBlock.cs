@@ -254,52 +254,6 @@ public class MinoBlock : MonoBehaviour
         }
     }
 
-    /* IMinos are special because they need to kicked 2 spaces instead of one
-    private void IMinoKick(Direction endDirection, Orientation endOrientation)
-    {
-        MinoBlock testBlock;
-
-        int counter = 0;
-
-        // Set isColliding to false before instantiate
-        for (int i = 0; i < flatPieces.Length; i++)
-        {
-            currentMinoPiece = flatPieces[i].gameObject.GetComponent<MinoPiece>();
-            currentMinoPiece.isColliding = false;
-        }
-
-        MinoBlock currentMinoBlock = gameObject.GetComponent<MinoBlock>();
-
-        testBlock = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
-
-        for (int i = 0; i < testBlock.leftPieces.Length; i++)
-        {
-            currentMeshRenderer = testBlock.leftPieces[i].GetComponent<MeshRenderer>();
-            currentMeshRenderer.enabled = false;
-        }
-
-        testBlock.name = "testBlock";
-
-        testBlock.MoveHorizontal(endDirection, 2);
-
-        for (int i = 0; i < testBlock.flatPieces.Length; i++)
-        {
-            currentMinoPiece = testBlock.flatPieces[i].gameObject.GetComponent<MinoPiece>();
-            if (currentMinoPiece.isColliding)
-            {
-                counter++;
-            }
-        }
-
-        if (counter == 0)
-        {
-            MoveHorizontal(endDirection, 2);
-            SetMinoOrientation(endOrientation);
-        }
-
-        Destroy(testBlock.gameObject);
-    }*/
-
     public static GameObject[] GetActiveMinoPieces(MinoBlock minoBlock)
     {
         GameObject[] activeMinoPieces = null;
@@ -443,10 +397,15 @@ public class MinoBlock : MonoBehaviour
         }
     }
 
-    public void HardDrop()
+    public int HardDrop()
     {
-        gameObject.transform.position = new Vector3(gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), gameObject.transform.position.z);
+        float hardDropYPosition = MinoBlock.GetHardDropYPosition();
+        float distance = gameObject.transform.position.y - hardDropYPosition;
+
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, hardDropYPosition, gameObject.transform.position.z);
         GameManger.instance.lockTimer = GameManger.instance.lockTimerDelay;
+
+        return (int)distance;
     }
 
     public void Kick(Orientation endOrientation)
@@ -455,19 +414,35 @@ public class MinoBlock : MonoBehaviour
         MinoBlock testBlockLeft;
         MinoBlock testBlockRight;
 
+        MinoBlock testBlockUpX2;
+        MinoBlock testBlockLeftX2;
+        MinoBlock testBlockRightX2;
+
         GameObject[] testBlockUpPieces = null;
         GameObject[] testBlockLeftPieces = null;
         GameObject[] testBlockRightPieces = null;
+
+        GameObject[] testBlockUpX2Pieces = null;
+        GameObject[] testBlockLeftX2Pieces = null;
+        GameObject[] testBlockRightX2Pieces = null;
 
         bool canKickUp = false;
         bool canKickLeft = false;
         bool canKickRight = false;
 
+        bool canKickUpX2 = false;
+        bool canKickLeftX2 = false;
+        bool canKickRightX2 = false;
+        
         MinoBlock currentMinoBlock = gameObject.GetComponent<MinoBlock>();
 
         testBlockUp = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
         testBlockLeft = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
         testBlockRight = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+
+        testBlockUpX2 = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+        testBlockLeftX2 = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
+        testBlockRightX2 = Instantiate(currentMinoBlock, currentMinoBlock.transform.position, Quaternion.identity);
 
         switch (endOrientation)
         {
@@ -475,24 +450,40 @@ public class MinoBlock : MonoBehaviour
                 testBlockUpPieces = testBlockUp.flatPieces;
                 testBlockLeftPieces = testBlockLeft.flatPieces;
                 testBlockRightPieces = testBlockRight.flatPieces;
+
+                testBlockUpX2Pieces = testBlockUpX2.flatPieces;
+                testBlockLeftX2Pieces = testBlockLeftX2.flatPieces;
+                testBlockRightX2Pieces = testBlockRightX2.flatPieces;
                 break;
 
             case Orientation.left:
                 testBlockUpPieces = testBlockUp.leftPieces;
                 testBlockLeftPieces = testBlockLeft.leftPieces;
                 testBlockRightPieces = testBlockRight.leftPieces;
+
+                testBlockUpX2Pieces = testBlockUpX2.leftPieces;
+                testBlockLeftX2Pieces = testBlockLeftX2.leftPieces;
+                testBlockRightX2Pieces = testBlockRightX2.leftPieces;
                 break;
 
             case Orientation.right:
                 testBlockUpPieces = testBlockUp.rightPieces;
                 testBlockLeftPieces = testBlockLeft.rightPieces;
                 testBlockRightPieces = testBlockRight.rightPieces;
+
+                testBlockUpX2Pieces = testBlockUpX2.rightPieces;
+                testBlockLeftX2Pieces = testBlockLeftX2.rightPieces;
+                testBlockRightX2Pieces = testBlockRightX2.rightPieces;
                 break;
 
             case Orientation.flipped:
                 testBlockUpPieces = testBlockUp.flippedPieces;
                 testBlockLeftPieces = testBlockLeft.flippedPieces;
                 testBlockRightPieces = testBlockRight.flippedPieces;
+
+                testBlockUpX2Pieces = testBlockUpX2.flippedPieces;
+                testBlockLeftX2Pieces = testBlockLeftX2.flippedPieces;
+                testBlockRightX2Pieces = testBlockRightX2.flippedPieces;
                 break;
         }
 
@@ -500,9 +491,17 @@ public class MinoBlock : MonoBehaviour
         testBlockLeft.name = "testBlockLeft";
         testBlockRight.name = "testBlockRight";
 
+        testBlockUpX2.name = "testBlockUpX2";
+        testBlockLeftX2.name = "testBlockLeftX2";
+        testBlockRightX2.name = "testBlockRightX2";
+
         testBlockUp.gameObject.layer = 0;
         testBlockLeft.gameObject.layer = 0;
         testBlockRight.gameObject.layer = 0;
+
+        testBlockUpX2.gameObject.layer = 0;
+        testBlockLeftX2.gameObject.layer = 0;
+        testBlockRightX2.gameObject.layer = 0;
 
         /*
          * Test moving the mino up
@@ -564,25 +563,107 @@ public class MinoBlock : MonoBehaviour
             canKickRight = false;
         }
 
-        //Debug.Log("canKickUp: " + canKickUp + " | " + "canKickLeft: " + canKickLeft + " | " + "canKickRight: " + canKickRight);
+        /*
+         * Test moving the mino up X2
+         */
+
+        testBlockUpX2.MoveUp(2);
+        testBlockUpX2.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockUpX2Pieces.Length; i++)
+        {
+            currentMeshRenderer = testBlockUpX2Pieces[i].GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+        }
+
+        if (!MinoBlock.IsColliding(testBlockUpX2Pieces))
+        {
+            canKickUpX2 = true;
+        }
+        else
+        {
+            canKickUpX2 = false;
+        }
+
+        /*
+         * Test moving the mino left X2
+         */
+        testBlockLeftX2.MoveHorizontal(Direction.left, 2);
+        testBlockLeftX2.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockLeftX2Pieces.Length; i++)
+        {
+            currentMeshRenderer = testBlockLeftX2Pieces[i].GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+        }
+
+        if (!MinoBlock.IsColliding(testBlockLeftX2Pieces))
+        {
+            canKickLeftX2 = true;
+        }
+        else
+        {
+            canKickLeftX2 = false;
+        }
+
+        /*
+         * Test moving the mino right X2
+         */
+        testBlockRightX2.MoveHorizontal(Direction.right, 2);
+        testBlockRightX2.SetMinoOrientation(endOrientation);
+        for (int i = 0; i < testBlockRightX2Pieces.Length; i++)
+        {
+            currentMeshRenderer = testBlockRightX2Pieces[i].GetComponent<MeshRenderer>();
+            currentMeshRenderer.enabled = false;
+        }
+
+        if (!MinoBlock.IsColliding(testBlockRightX2Pieces))
+        {
+            canKickRightX2 = true;
+        }
+        else
+        {
+            canKickRightX2 = false;
+        }
+
+        // Debug.Log("[Up: " + canKickUp + ", Up2: " + canKickLeftX2 + "] | [" + "Left: " + canKickLeft + ", Left2: " + canKickLeftX2 + "] | ]" + "Right: " + canKickRight + ", Right2: " + canKickRightX2 + "]");
 
         Destroy(testBlockUp.gameObject);
         Destroy(testBlockLeft.gameObject);
         Destroy(testBlockRight.gameObject);
+
+        Destroy(testBlockUpX2.gameObject);
+        Destroy(testBlockLeftX2.gameObject);
+        Destroy(testBlockRightX2.gameObject);
 
         if (!canKickUp && canKickLeft && !canKickRight)
         {
             MoveHorizontal(Direction.left, 1);
             SetMinoOrientation(endOrientation);
         }
+        else if (!canKickUp && canKickLeftX2 && !canKickRight)
+        {
+            MoveHorizontal(Direction.left, 2);
+            SetMinoOrientation(endOrientation);
+        }
+
         if (!canKickUp && !canKickLeft && canKickRight)
         {
             MoveHorizontal(Direction.right, 1);
             SetMinoOrientation(endOrientation);
         }
+        else if (!canKickUp && !canKickLeft && canKickRightX2)
+        {
+            MoveHorizontal(Direction.right, 2);
+            SetMinoOrientation(endOrientation);
+        }
+
         if (canKickUp && !canKickLeft && !canKickRight)
         {
             MoveUp(1);
+            SetMinoOrientation(endOrientation);
+        }
+        else if (canKickUpX2 && !canKickLeft && !canKickRight)
+        {
+            MoveUp(2);
             SetMinoOrientation(endOrientation);
         }
     }

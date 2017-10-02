@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using cakeslice;
+using TMPro;
 
 public enum DirectionButton
 {
@@ -72,6 +73,22 @@ public class GameManger : MonoBehaviour
     private bool swappedHoldMinoLastTurn;
     private bool canSwapHoldMino;
 
+    [SerializeField] private float _currentGameTime;
+    public GameObject gameTimeText;
+    private TextMeshPro gameTimeTextTMP;
+
+    [SerializeField] private int _currentLinesCleared;
+    public GameObject linesClearedText;
+    private TextMeshPro linesClearedTextTMP;
+
+    [SerializeField] private int _currentScore;
+    public GameObject scoreText;
+    private TextMeshPro scoreTextTMP;
+
+    [SerializeField] private int _currentLevel;
+    public GameObject levelText;
+    private TextMeshPro levelTextTMP;
+
     private void Awake()
     {
         instance = this;
@@ -104,6 +121,10 @@ public class GameManger : MonoBehaviour
         InitMinoQueue();
         minoTimer = minoSpawnDelay; //make a mino drop immediately
         firstStart = false;
+        CurrentGameTime = 0;
+        CurrentLinesCleared = 0;
+        CurrentLevel = 1;
+        CurrentScore = 0;
     }
 
     private void ClearGame()
@@ -220,6 +241,8 @@ public class GameManger : MonoBehaviour
 
     private void GameLoop()
     {
+        CurrentGameTime += Time.deltaTime;
+
         if (instance.activeMino == null && lineClearInProgress == false) //if there's no activeMino spawn one
         {
             minoTimer += Time.deltaTime;
@@ -248,6 +271,12 @@ public class GameManger : MonoBehaviour
                 {
                     activeMinoMinoBlock.MoveDown(1);
                     gravityTimer = 0;
+
+                    // if the player is soft dropping increase the score
+                    if (currentGravityDelay == fastGravityDelay)
+                    {
+                        CurrentScore++;
+                    }
                 }
                 else
                 {
@@ -273,6 +302,27 @@ public class GameManger : MonoBehaviour
                             }
                         }
 
+                        CurrentLinesCleared += fullRows.Count;
+
+                        switch (fullRows.Count)
+                        {
+                            case 1:
+                                CurrentScore += 100 * CurrentLevel;
+                                break;
+
+                            case 2:
+                                CurrentScore += 300 * CurrentLevel;
+                                break;
+
+                            case 3:
+                                CurrentScore += 500 * CurrentLevel;
+                                break;
+
+                            case 4:
+                                CurrentScore += 800 * CurrentLevel;
+                                break;
+                        }
+
                         if (fullRows.Count > 0)
                         {
                             StartCoroutine(ClearRows(fullRows));
@@ -292,6 +342,66 @@ public class GameManger : MonoBehaviour
         set
         {
             _currentGameState = value;
+        }
+    }
+
+    public float CurrentGameTime
+    {
+        get
+        {
+            return _currentGameTime;
+        }
+        set
+        {
+            gameTimeTextTMP = instance.gameTimeText.GetComponent<TextMeshPro>();
+
+            _currentGameTime = value;
+            gameTimeTextTMP.text = string.Format("{0}:{1:00.00}", (int)_currentGameTime / 60, _currentGameTime % 60);
+        }
+    }
+
+    public int CurrentLinesCleared
+    {
+        get
+        {
+            return _currentLinesCleared;
+        }
+        set
+        {
+            linesClearedTextTMP = instance.linesClearedText.GetComponent<TextMeshPro>();
+
+            _currentLinesCleared = value;
+            linesClearedTextTMP.text = value.ToString();
+        }
+    }
+
+    public int CurrentLevel
+    {
+        get
+        {
+            return _currentLevel;
+        }
+        set
+        {
+            levelTextTMP = instance.levelText.GetComponent<TextMeshPro>();
+
+            _currentLevel = value;
+            levelTextTMP.text = value.ToString();
+        }
+    }
+
+    public int CurrentScore
+    {
+        get
+        {
+            return _currentScore;
+        }
+        set
+        {
+            scoreTextTMP = instance.scoreText.GetComponent<TextMeshPro>();
+
+            _currentScore = value;
+            scoreTextTMP.text = string.Format("{0:00000000}", _currentScore);
         }
     }
 
@@ -441,9 +551,10 @@ public class GameManger : MonoBehaviour
                 activeMinoMinoBlock.RotateMinoBlock(Direction.right);
             }
 
-            if (inputVertical > 0) // if up input
+            if (inputVertical > 0) // if up input (Hard Drop)
             {
-                activeMinoMinoBlock.HardDrop();
+                // HardDrop() returns the distance of the drop. That (doubled) is added to the score
+                CurrentScore += activeMinoMinoBlock.HardDrop() * 2;
             }
 
             if (inputVertical == 0) // if no veritcal input
@@ -451,8 +562,9 @@ public class GameManger : MonoBehaviour
                 currentGravityDelay = gravityDelay;
             }
 
-            if (inputVertical < 0) // if down input
+            if (inputVertical < 0) // if down input (Soft Drop)
             {
+                // scoring for a soft drop is handled in the game loop
                 currentGravityDelay = fastGravityDelay;
             }
 
