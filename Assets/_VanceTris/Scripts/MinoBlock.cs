@@ -27,6 +27,7 @@ public class MinoBlock : MonoBehaviour
     public GameObject[] leftPieces;
     public GameObject[] rightPieces;
     public GameObject[] flippedPieces;
+
     private Vector3 vectorDirection;
 
     private MeshRenderer currentMeshRenderer;

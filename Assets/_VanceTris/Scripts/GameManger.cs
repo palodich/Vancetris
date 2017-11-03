@@ -21,6 +21,7 @@ public class GameManger : MonoBehaviour
     private MinoBlock activeMinoMinoBlock;
     private MinoBlock ghostMinoMinoBlock;
     private MinoBlock holdMinoMinoBlock;
+    private TMino currentTMino;
 
     [HideInInspector] public float minoTimer = 0f;
     [Tooltip("Time until a new mino is spawned.")] public float minoSpawnDelay = 1f;
@@ -287,6 +288,13 @@ public class GameManger : MonoBehaviour
                         minoTimer = 0;
                         lockTimer = 0;
 
+                        if (activeMinoMinoBlock.activeMinoType == MinoType.tMino)
+                        {
+                            currentTMino = instance.activeMino.GetComponent<TMino>();
+
+                            currentTMino.CheckTSpin(activeMinoMinoBlock.activeMinoOrientation);
+                        }
+
                         instance.LockActiveMino();
                         Destroy(instance.activeMino.gameObject);
                         Destroy(instance.ghostMino.gameObject);
@@ -308,18 +316,22 @@ public class GameManger : MonoBehaviour
                         {
                             case 1:
                                 CurrentScore += 100 * CurrentLevel;
+                                Debug.Log("Single line clear!");
                                 break;
 
                             case 2:
                                 CurrentScore += 300 * CurrentLevel;
+                                Debug.Log("Double line clear!");
                                 break;
 
                             case 3:
                                 CurrentScore += 500 * CurrentLevel;
+                                Debug.Log("Oh baby a triple!");
                                 break;
 
                             case 4:
                                 CurrentScore += 800 * CurrentLevel;
+                                Debug.Log("Tetris!");
                                 break;
                         }
 
@@ -701,6 +713,8 @@ public class GameManger : MonoBehaviour
         currentMinoBlock.SetMinoOrientation(Orientation.flat);
     }
 
+
+
     public void LockActiveMino()
     {
         if (instance.activeMino != null)
@@ -784,6 +798,7 @@ public class GameManger : MonoBehaviour
                     }
                     break;
             }
+
             instance.activeMino.layer = 0;
 
             for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)

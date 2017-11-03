@@ -1448,6 +1448,7 @@ MonoBehaviour:
   - {fileID: 1887555668105918}
   - {fileID: 1150432496342906}
   - {fileID: 1680924981441182}
+  tMinoCornerPieces: []
 --- !u!114 &114157489011052820
 MonoBehaviour:
   m_ObjectHideFlags: 1
