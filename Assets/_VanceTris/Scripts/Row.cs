@@ -9,7 +9,7 @@ public class Row : MonoBehaviour
     public bool IsRowFull()
     {
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.instance.rowLayerMask);
+        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.Instance.RowLayerMask);
 
         if (hits.Length == 10)
         {
@@ -21,7 +21,7 @@ public class Row : MonoBehaviour
     public void HighlightRow()
     {
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.instance.rowLayerMask);
+        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.Instance.RowLayerMask);
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -33,7 +33,7 @@ public class Row : MonoBehaviour
     public void DestroyRow()
     {
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.instance.rowLayerMask);
+        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.Instance.RowLayerMask);
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -44,7 +44,7 @@ public class Row : MonoBehaviour
     public void MoveRowDown()
     {
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.instance.rowLayerMask);
+        hits = Physics.RaycastAll(transform.position, -(transform.right), 10f, GameManger.Instance.RowLayerMask);
 
         for (int i = 0; i < hits.Length; i++)
         {

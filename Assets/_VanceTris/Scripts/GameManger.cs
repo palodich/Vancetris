@@ -16,83 +16,202 @@ public enum GameState
 
 public class GameManger : MonoBehaviour
 {
-    public static GameManger instance;
+    // TODO Consider making a "Timer" class?
+    private float minoTimer = 0f;
+    [SerializeField] [Tooltip("Time until a new mino is spawned.")] private float minoSpawnDelay = 1f;
+    private float gravityTimer = 0f;
+    [SerializeField] [Tooltip("The time until pieces fall one line.")] private float gravityDelay = 0.75f;
+    [SerializeField] [Tooltip("How fast the pieces fall when the player holds down.")] private float fastGravityDelay = 0.05f;
+    private float currentGravityDelay;
+    private float buttonTimer = 0f;
+    [SerializeField] [Tooltip("Delay until fast horizontal movement is applied.")] private float buttonHoldDelay = 0.5f;
+    private bool movedOnce;
+    private float moveRepeatTimer = 0f;
+    [SerializeField] [Tooltip("Horizontal movement speed when the left/right button is held down.")] private float moveRepeatDelay = 5f;
+    [HideInInspector] public float lockTimer = 0f; //TODO: need to make these private with properties
+    [Tooltip("How long until a mino touching the floor is locked in place.")] public float lockTimerDelay = 0.5f;
+    [SerializeField] [Tooltip("How long a row is 'highlighted' before it is cleared.")] private float rowClearDelay = 1f;
+
+    //
+    // Fields and Properties
+    //
+
+    private static GameManger _instance;
+    public static GameManger Instance
+    {
+        get { return _instance; }
+        set { _instance = value; }
+    }
 
     private MinoBlock activeMinoMinoBlock;
     private MinoBlock ghostMinoMinoBlock;
     private MinoBlock holdMinoMinoBlock;
-    private TMino currentTMino;
-
-    [HideInInspector] public float minoTimer = 0f;
-    [Tooltip("Time until a new mino is spawned.")] public float minoSpawnDelay = 1f;
-
-    [HideInInspector] public float gravityTimer = 0f;
-    [Tooltip("The time until pieces fall one line.")] public float gravityDelay = 0.75f;
-    [Tooltip("How fast the pieces fall when the player holds down.")] public float fastGravityDelay = 0.05f;
-    [HideInInspector] public float currentGravityDelay;
-
-    [HideInInspector] public float buttonTimer = 0f;
-    [Tooltip("Delay until fast horizontal movement is applied.")] public float buttonHoldDelay = 0.5f;
-    [HideInInspector] public bool movedOnce;
-
-    [HideInInspector] public float moveRepeatTimer = 0f;
-    [Tooltip("Horizontal movement speed when the left/right button is held down.")] public float moveRepeatDelay = 5f;
-
-    [HideInInspector] public float lockTimer = 0f;
-    [Tooltip("How long until a mino touching the floor is locked in place.")] public float lockTimerDelay = 0.5f;
-
-    [Tooltip("How long a row is 'highlighted' before it is cleared.")] public float rowClearDelay = 1f;
-
-    public LayerMask minoBlockLayerMask;
-    public LayerMask rowLayerMask;
-
-    public GameObject activeMino;
-    public GameObject ghostMino;
-    public GameObject nextMino1;
-    public GameObject nextMino2;
-    public GameObject nextMino3;
-    public GameObject nextMino4;
-    public GameObject nextMino5;
-    public GameObject holdMino;
-    public GameObject[] minoPrefabs;
-
-    public Row[] rows;
-
-    [SerializeField] private GameState _currentGameState;
-
-    private float inputHorizontal;
-    private float lastInputHorizontal;
-    private float inputVertical;
-    private bool inputSwapHoldMino;
-    private bool inputRotateLeft;
-    private bool inputRotateRight;
-
     private bool lineClearInProgress = false;
-    private List<int> fullRows;
-
     private bool firstStart;
     private bool swappedHoldMinoLastTurn;
     private bool canSwapHoldMino;
 
+    // Set to _minoBlockLayerMask to PlacedMinoLayer and BorderLayer in Unity UI
+    [SerializeField] private LayerMask _minoBlockLayerMask;
+    public LayerMask MinoBlockLayerMask
+    {
+        get { return _minoBlockLayerMask; }
+        set { _minoBlockLayerMask = value; }
+    }
+
+    // Set to _rowLayerMask to PlacedMinoLayer in Unity UI
+    [SerializeField] private LayerMask _rowLayerMask;
+    public LayerMask RowLayerMask
+    {
+        get { return _rowLayerMask; }
+        set { _rowLayerMask = value; }
+    }
+
+    [SerializeField] private GameObject _activeMino;
+    public GameObject ActiveMino
+    {
+        get { return _activeMino; }
+        set { _activeMino = value; }
+    }
+
+    private GameObject _ghostMino;
+    public GameObject GhostMino
+    {
+        get { return _ghostMino; }
+        set { _ghostMino = value; }
+    }
+
+    private GameObject _nextMino1;
+    public GameObject NextMino1
+    {
+        get { return _nextMino1; }
+        set { _nextMino1 = value; }
+    }
+
+    private GameObject _nextMino2;
+    public GameObject NextMino2
+    {
+        get { return _nextMino2; }
+        set { _nextMino2 = value; }
+    }
+
+    private GameObject _nextMino3;
+    public GameObject NextMino3
+    {
+        get { return _nextMino3; }
+        set { _nextMino3 = value; }
+    }
+
+    private GameObject _nextMino4;
+    public GameObject NextMino4
+    {
+        get { return _nextMino4; }
+        set { _nextMino4 = value; }
+    }
+
+    private GameObject _nextMino5;
+    public GameObject NextMino5
+    {
+        get { return _nextMino5; }
+        set { _nextMino5 = value; }
+    }
+
+    private GameObject _holdMino;
+    public GameObject HoldMino
+    {
+        get { return _holdMino; }
+        set { _holdMino = value; }
+    }
+
+    [SerializeField] private GameObject[] _minoPrefabs;
+    public GameObject[] MinoPrefabs
+    {
+        get { return _minoPrefabs; }
+        set { MinoPrefabs = value; }
+    }
+
+    [SerializeField] private Row[] _rows;
+    public Row[] Rows
+    {
+        get { return _rows; }
+        set { _rows = value; }
+    }
+
+    [SerializeField] private GameState _currentGameState;
+    public GameState CurrentGameState
+    {
+        get { return _currentGameState; }
+        set { _currentGameState = value; }
+    }
+
     [SerializeField] private float _currentGameTime;
-    public GameObject gameTimeText;
+    [SerializeField] private GameObject gameTimeText;
     private TextMeshPro gameTimeTextTMP;
+    public float CurrentGameTime
+    {
+        get { return _currentGameTime; }
+        set
+        {
+            gameTimeTextTMP = Instance.gameTimeText.GetComponent<TextMeshPro>();
+
+            _currentGameTime = value;
+            gameTimeTextTMP.text = string.Format("{0}:{1:00.00}", (int)_currentGameTime / 60, _currentGameTime % 60);
+        }
+    }
 
     [SerializeField] private int _currentLinesCleared;
-    public GameObject linesClearedText;
+    [SerializeField] private GameObject linesClearedText;
     private TextMeshPro linesClearedTextTMP;
+    public int CurrentLinesCleared
+    {
+        get { return _currentLinesCleared; }
+        set
+        {
+            linesClearedTextTMP = Instance.linesClearedText.GetComponent<TextMeshPro>();
+
+            _currentLinesCleared = value;
+            linesClearedTextTMP.text = value.ToString();
+        }
+    }
 
     [SerializeField] private int _currentScore;
-    public GameObject scoreText;
+    [SerializeField] private GameObject scoreText;
     private TextMeshPro scoreTextTMP;
+    public int CurrentScore
+    {
+        get { return _currentScore; }
+        set
+        {
+            scoreTextTMP = Instance.scoreText.GetComponent<TextMeshPro>();
+
+            _currentScore = value;
+            scoreTextTMP.text = string.Format("{0:00000000}", _currentScore);
+        }
+    }
 
     [SerializeField] private int _currentLevel;
-    public GameObject levelText;
+    [SerializeField] private GameObject levelText;
     private TextMeshPro levelTextTMP;
+
+    public int CurrentLevel
+    {
+        get { return _currentLevel; }
+        set
+        {
+            levelTextTMP = Instance.levelText.GetComponent<TextMeshPro>();
+
+            _currentLevel = value;
+            levelTextTMP.text = value.ToString();
+        }
+    }
+
+    //
+    // Methods
+    //
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -130,22 +249,22 @@ public class GameManger : MonoBehaviour
 
     private void ClearGame()
     {
-        Destroy(activeMino.gameObject);
-        Destroy(ghostMino.gameObject);
-        Destroy(nextMino1.gameObject);
-        Destroy(nextMino2.gameObject);
-        Destroy(nextMino3.gameObject);
+        Destroy(ActiveMino.gameObject);
+        Destroy(GhostMino.gameObject);
+        Destroy(NextMino1.gameObject);
+        Destroy(NextMino2.gameObject);
+        Destroy(NextMino3.gameObject);
+        Destroy(NextMino4.gameObject);
+        Destroy(NextMino5.gameObject);
 
-        for (int i = 0; i < instance.rows.Length; i++)
+        for (int i = 0; i < Instance.Rows.Length; i++)
         {
-            instance.rows[i].DestroyRow();
+            Instance.Rows[i].DestroyRow();
         }
     }
 
-    private static void SpawnActiveMino()
+    private void SpawnActiveMino()
     {
-        MinoBlock activeMinoMinoBlock;
-        MinoBlock ghostMinoMinoBlock;
         MinoBlock nextMino1minoBlock;
         MinoBlock nextMino2minoBlock;
         MinoBlock nextMino3minoBlock;
@@ -154,97 +273,100 @@ public class GameManger : MonoBehaviour
         Outline[] ghostMinoPiecesOutline;
         MeshRenderer[] ghostMinoPieceMeshRenderers;
 
-        if (instance.activeMino == null)
+        if (Instance.ActiveMino == null)
         {
-            // create the activeMino by copying the first nextMino
-            instance.activeMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
-            instance.activeMino.name = "ActiveMino";
-            activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
-            activeMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+            // create the ActiveMino by copying the first nextMino
+            Instance.ActiveMino = Instantiate(Instance.NextMino1, MinoSpawner.Instance.transform.position, Quaternion.identity);
+            Instance.ActiveMino.name = "ActiveMino";
+            activeMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
+            activeMinoMinoBlock.ActiveMinoOrientation = Orientation.flat;
             
-            // create the ghostMino, enable the outline script, and disable the renderer, so we'll have a cool "ghost" mino
-            instance.ghostMino = Instantiate(instance.nextMino1, MinoSpawner.instance.transform.position, Quaternion.identity);
-            instance.ghostMino.name = "GhostMino";
-            ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
-            ghostMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+            // create the GhostMino, enable the outline script, and disable the renderer, so we'll have a cool "ghost" mino
+            Instance.GhostMino = Instantiate(Instance.NextMino1, MinoSpawner.Instance.transform.position, Quaternion.identity);
+            Instance.GhostMino.name = "GhostMino";
+            ghostMinoMinoBlock = Instance.GhostMino.GetComponent<MinoBlock>();
+            ghostMinoMinoBlock.ActiveMinoOrientation = Orientation.flat;
             ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
             for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
             {
                 ghostMinoPiecesOutline[i].enabled = true;
             }
-            ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
+            ghostMinoPieceMeshRenderers = Instance.GhostMino.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
             {
                 ghostMinoPieceMeshRenderers[i].enabled = false;
             }
 
-            // if our new activeMino is colliding with an existing piece it's game over man, game over!
+            // if our new ActiveMino is colliding with an existing piece it's game over man, game over!
             // TODO: game over should probably be when a set mino is above a certain height, rather than checking for a collision
-            instance.CheckForGameOver();
+            Instance.CheckForGameOver();
 
             // create the 5 mino previews
-            Destroy(instance.nextMino1);
-            instance.nextMino1 = Instantiate(instance.nextMino2, MinoPreview1.instance.transform.position, Quaternion.identity);
-            instance.nextMino1.name = "NextMino1";
-            nextMino1minoBlock = instance.nextMino1.GetComponent<MinoBlock>();
-            nextMino1minoBlock.SetMinoOrientation(Orientation.flat);
+            Destroy(Instance.NextMino1);
+            Instance.NextMino1 = Instantiate(Instance.NextMino2, MinoPreview1.Instance.transform.position, Quaternion.identity);
+            Instance.NextMino1.name = "NextMino1";
+            nextMino1minoBlock = Instance.NextMino1.GetComponent<MinoBlock>();
+            nextMino1minoBlock.ActiveMinoOrientation = Orientation.flat;
 
-            Destroy(instance.nextMino2);
-            instance.nextMino2 = Instantiate(instance.nextMino3, MinoPreview2.instance.transform.position, Quaternion.identity);
-            instance.nextMino2.name = "NextMino2";
-            nextMino2minoBlock = instance.nextMino2.GetComponent<MinoBlock>();
-            nextMino2minoBlock.SetMinoOrientation(Orientation.flat);
+            Destroy(Instance.NextMino2);
+            Instance.NextMino2 = Instantiate(Instance.NextMino3, MinoPreview2.Instance.transform.position, Quaternion.identity);
+            Instance.NextMino2.name = "NextMino2";
+            nextMino2minoBlock = Instance.NextMino2.GetComponent<MinoBlock>();
+            nextMino2minoBlock.ActiveMinoOrientation = Orientation.flat;
 
-            Destroy(instance.nextMino3);
-            instance.nextMino3 = Instantiate(instance.nextMino4, MinoPreview3.instance.transform.position, Quaternion.identity);
-            instance.nextMino3.name = "NextMino3";
-            nextMino3minoBlock = instance.nextMino3.GetComponent<MinoBlock>();
-            nextMino3minoBlock.SetMinoOrientation(Orientation.flat);
+            Destroy(Instance.NextMino3);
+            Instance.NextMino3 = Instantiate(Instance.NextMino4, MinoPreview3.Instance.transform.position, Quaternion.identity);
+            Instance.NextMino3.name = "NextMino3";
+            nextMino3minoBlock = Instance.NextMino3.GetComponent<MinoBlock>();
+            nextMino3minoBlock.ActiveMinoOrientation = Orientation.flat;
 
-            Destroy(instance.nextMino4);
-            instance.nextMino4 = Instantiate(instance.nextMino5, MinoPreview4.instance.transform.position, Quaternion.identity);
-            instance.nextMino4.name = "NextMino4";
-            nextMino4minoBlock = instance.nextMino4.GetComponent<MinoBlock>();
-            nextMino4minoBlock.SetMinoOrientation(Orientation.flat);
+            Destroy(Instance.NextMino4);
+            Instance.NextMino4 = Instantiate(Instance.NextMino5, MinoPreview4.Instance.transform.position, Quaternion.identity);
+            Instance.NextMino4.name = "NextMino4";
+            nextMino4minoBlock = Instance.NextMino4.GetComponent<MinoBlock>();
+            nextMino4minoBlock.ActiveMinoOrientation = Orientation.flat;
 
             // we'll need to come up with a random mino for the 5th preview. make sure it's not the same as the last mino, so you
             // don't end up with a bunch of repeat pieces
 
-            int randomIndex = Random.Range(0, instance.minoPrefabs.Length);
+            int randomIndex = Random.Range(0, Instance.MinoPrefabs.Length);
 
-            while (randomIndex == (int)nextMino4minoBlock.activeMinoType)
+            while (randomIndex == (int)nextMino4minoBlock.ActiveMinoType)
             {
-                randomIndex = Random.Range(0, instance.minoPrefabs.Length);
+                randomIndex = Random.Range(0, Instance.MinoPrefabs.Length);
             }
             
-            Destroy(instance.nextMino5);
-            instance.nextMino5 = Instantiate(instance.minoPrefabs[randomIndex], MinoPreview5.instance.transform.position, Quaternion.identity);
-            instance.nextMino5.name = "NextMino5";
-            nextMino5minoBlock = instance.nextMino5.GetComponent<MinoBlock>();
-            nextMino5minoBlock.SetMinoOrientation(Orientation.flat);
+            Destroy(Instance.NextMino5);
+            Instance.NextMino5 = Instantiate(Instance.MinoPrefabs[randomIndex], MinoPreview5.Instance.transform.position, Quaternion.identity);
+            Instance.NextMino5.name = "NextMino5";
+            nextMino5minoBlock = Instance.NextMino5.GetComponent<MinoBlock>();
+            nextMino5minoBlock.ActiveMinoOrientation = Orientation.flat;
 
-            instance.activeMino.layer = 8;
+            Instance.ActiveMino.layer = 8;
 
             // prevent swapping if we just swapped a Mino
-            if (instance.swappedHoldMinoLastTurn)
+            if (Instance.swappedHoldMinoLastTurn)
             {
-                instance.canSwapHoldMino = false;
-                instance.swappedHoldMinoLastTurn = false;
+                Instance.canSwapHoldMino = false;
+                Instance.swappedHoldMinoLastTurn = false;
             }
             else
             {
-                instance.canSwapHoldMino = true;
-                instance.swappedHoldMinoLastTurn = false;
+                Instance.canSwapHoldMino = true;
+                Instance.swappedHoldMinoLastTurn = false;
             }
         }
-        else { Debug.LogWarning("Only one activeMino can spawn at a time."); }
+        else { Debug.LogWarning("Only one ActiveMino can spawn at a time."); }
     }
 
     private void GameLoop()
     {
+        TMino currentTMino;
+        List<int> fullRows;
+
         CurrentGameTime += Time.deltaTime;
 
-        if (instance.activeMino == null && lineClearInProgress == false) //if there's no activeMino spawn one
+        if (Instance.ActiveMino == null && lineClearInProgress == false) //if there's no ActiveMino spawn one
         {
             minoTimer += Time.deltaTime;
 
@@ -256,16 +378,16 @@ public class GameManger : MonoBehaviour
             {
                 SpawnActiveMino();
                 currentGravityDelay = gravityDelay;
-                activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+                activeMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
             }
         }
-        else if (instance.activeMino != null && lineClearInProgress == false) // if there's an activeMino continue the game loop
+        else if (Instance.ActiveMino != null && lineClearInProgress == false) // if there's an ActiveMino continue the game loop
         {
             GetPlayerInput();
             UpdateGhostMino();
             gravityTimer += Time.deltaTime;
 
-            // move down if we can, otherwise start the lock timer/lock mino/clear rows
+            // move down if we can, otherwise start the lock timer/lock mino/clear Rows
             if (gravityTimer > currentGravityDelay)
             {
                 if (activeMinoMinoBlock.CanMoveDown())
@@ -288,23 +410,23 @@ public class GameManger : MonoBehaviour
                         minoTimer = 0;
                         lockTimer = 0;
 
-                        if (activeMinoMinoBlock.activeMinoType == MinoType.tMino)
+                        if (activeMinoMinoBlock.ActiveMinoType == MinoType.tMino)
                         {
-                            currentTMino = instance.activeMino.GetComponent<TMino>();
+                            currentTMino = Instance.ActiveMino.GetComponent<TMino>();
 
-                            currentTMino.CheckTSpin(activeMinoMinoBlock.activeMinoOrientation);
+                            currentTMino.CheckTSpin(activeMinoMinoBlock.ActiveMinoOrientation);
                         }
 
-                        instance.LockActiveMino();
-                        Destroy(instance.activeMino.gameObject);
-                        Destroy(instance.ghostMino.gameObject);
+                        Instance.LockActiveMino();
+                        Destroy(Instance.ActiveMino.gameObject);
+                        Destroy(Instance.GhostMino.gameObject);
 
                         // check to see if there are any lines that need to be cleared
                         fullRows = new List<int>();
 
-                        for (int i = 0; i < instance.rows.Length; i++)
+                        for (int i = 0; i < Instance.Rows.Length; i++)
                         {
-                            if (instance.rows[i].IsRowFull())
+                            if (Instance.Rows[i].IsRowFull())
                             {
                                 fullRows.Add(i);
                             }
@@ -345,82 +467,10 @@ public class GameManger : MonoBehaviour
         }
     }
 
-    public GameState CurrentGameState
-    {
-        get
-        {
-            return _currentGameState;
-        }
-        set
-        {
-            _currentGameState = value;
-        }
-    }
-
-    public float CurrentGameTime
-    {
-        get
-        {
-            return _currentGameTime;
-        }
-        set
-        {
-            gameTimeTextTMP = instance.gameTimeText.GetComponent<TextMeshPro>();
-
-            _currentGameTime = value;
-            gameTimeTextTMP.text = string.Format("{0}:{1:00.00}", (int)_currentGameTime / 60, _currentGameTime % 60);
-        }
-    }
-
-    public int CurrentLinesCleared
-    {
-        get
-        {
-            return _currentLinesCleared;
-        }
-        set
-        {
-            linesClearedTextTMP = instance.linesClearedText.GetComponent<TextMeshPro>();
-
-            _currentLinesCleared = value;
-            linesClearedTextTMP.text = value.ToString();
-        }
-    }
-
-    public int CurrentLevel
-    {
-        get
-        {
-            return _currentLevel;
-        }
-        set
-        {
-            levelTextTMP = instance.levelText.GetComponent<TextMeshPro>();
-
-            _currentLevel = value;
-            levelTextTMP.text = value.ToString();
-        }
-    }
-
-    public int CurrentScore
-    {
-        get
-        {
-            return _currentScore;
-        }
-        set
-        {
-            scoreTextTMP = instance.scoreText.GetComponent<TextMeshPro>();
-
-            _currentScore = value;
-            scoreTextTMP.text = string.Format("{0:00000000}", _currentScore);
-        }
-    }
-
     public bool IsGameInProgress()
     {
         // if none of our special minos in the scene are null then we know there is a game in progress
-        if (instance.nextMino1 != null && instance.nextMino2 != null && instance.nextMino3 != null && instance.nextMino4 != null && instance.nextMino5 != null)
+        if (Instance.NextMino1 != null && Instance.NextMino2 != null && Instance.NextMino3 != null && Instance.NextMino4 != null && Instance.NextMino5 != null)
         {
             return true;
         }
@@ -429,7 +479,7 @@ public class GameManger : MonoBehaviour
 
     private void CheckForGameOver()
     {
-        activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+        activeMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
 
         GameObject[] activeMinoPieces = MinoBlock.GetActiveMinoPieces(activeMinoMinoBlock);
 
@@ -445,8 +495,8 @@ public class GameManger : MonoBehaviour
     {
         // TODO: add an if-statement so that we only update the rotation if we need to
     
-        // have the ghost mino mirror the orientation of the activeMino, and place it in the scene properly
-        ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
+        // have the ghost mino mirror the orientation of the ActiveMino, and place it in the scene properly
+        ghostMinoMinoBlock = Instance.GhostMino.GetComponent<MinoBlock>();
         Outline[] ghostMinoPiecesOutline;
 
         // turn off the current outline...
@@ -456,8 +506,8 @@ public class GameManger : MonoBehaviour
             ghostMinoPiecesOutline[i].enabled = false;
         }
         
-        // have the ghostMino orientation match the activeMino...
-        ghostMinoMinoBlock.SetMinoOrientation(activeMinoMinoBlock.activeMinoOrientation);
+        // have the GhostMino orientation match the ActiveMino...
+        ghostMinoMinoBlock.ActiveMinoOrientation = activeMinoMinoBlock.ActiveMinoOrientation;
 
         // turn on the ghost outline for the new rotation
         ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
@@ -466,7 +516,7 @@ public class GameManger : MonoBehaviour
             ghostMinoPiecesOutline[i].enabled = true;
         }
 
-        instance.ghostMino.gameObject.transform.position = new Vector3(instance.activeMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), instance.ghostMino.gameObject.transform.position.z);
+        Instance.GhostMino.gameObject.transform.position = new Vector3(Instance.ActiveMino.gameObject.transform.position.x, MinoBlock.GetHardDropYPosition(), Instance.GhostMino.gameObject.transform.position.z);
     }
 
     private IEnumerator ClearRows(List<int> fullRows)
@@ -475,21 +525,21 @@ public class GameManger : MonoBehaviour
 
         for (int i = 0; i < fullRows.Count; i++)
         {
-            instance.rows[fullRows[i]].HighlightRow();
+            Instance.Rows[fullRows[i]].HighlightRow();
         }
 
         yield return new WaitForSeconds(rowClearDelay);
 
         for (int i = 0; i < fullRows.Count; i++)
         {
-            instance.rows[fullRows[i]].DestroyRow();
+            Instance.Rows[fullRows[i]].DestroyRow();
         }
 
         for (int i = 0; i < fullRows.Count; i++)
         {
-            for (int j = fullRows[i] + 1; j < instance.rows.Length; j++)
+            for (int j = fullRows[i] + 1; j < Instance.Rows.Length; j++)
             {
-                instance.rows[j - i].MoveRowDown();
+                Instance.Rows[j - i].MoveRowDown();
             }
         }
 
@@ -498,7 +548,14 @@ public class GameManger : MonoBehaviour
 
     private void GetPlayerInput()
     {
-        if (instance.activeMino != null) // make sure there's an activeMino in the scene
+        float inputHorizontal = 0;
+        float lastInputHorizontal = 0;
+        float inputVertical = 0;
+        bool inputSwapHoldMino;
+        bool inputRotateLeft;
+        bool inputRotateRight;
+
+        if (Instance.ActiveMino != null) // make sure there's an ActiveMino in the scene
         {
             // we need the last horiz input to determine if the button has just been pressed, or if it's being held down
             lastInputHorizontal = inputHorizontal;
@@ -513,13 +570,13 @@ public class GameManger : MonoBehaviour
                 moveRepeatTimer += Time.deltaTime * 100f;
                 buttonTimer += Time.deltaTime;
 
-                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.activeMinoOrientation) == true)
+                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.ActiveMinoOrientation) == true)
                 {
                     //Debug.Log("move continuously");
                     activeMinoMinoBlock.MoveHorizontal(Direction.left, 1);
                     moveRepeatTimer = 0;
                 }
-                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.activeMinoOrientation) == true)
+                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.left, activeMinoMinoBlock.ActiveMinoOrientation) == true)
                 {
                     //Debug.Log("move once");
                     activeMinoMinoBlock.MoveHorizontal(Direction.left, 1);
@@ -539,13 +596,13 @@ public class GameManger : MonoBehaviour
                 moveRepeatTimer += Time.deltaTime * 100f;
                 buttonTimer += Time.deltaTime;
 
-                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.activeMinoOrientation) == true)
+                if (buttonTimer > buttonHoldDelay && moveRepeatTimer > moveRepeatDelay && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.ActiveMinoOrientation) == true)
                 {
                     //Debug.Log("move continuously");
                     activeMinoMinoBlock.MoveHorizontal(Direction.right, 1);
                     moveRepeatTimer = 0;
                 }
-                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.activeMinoOrientation) == true)
+                else if (lastInputHorizontal == 0 && !movedOnce && activeMinoMinoBlock.CanMoveHorizontal(Direction.right, activeMinoMinoBlock.ActiveMinoOrientation) == true)
                 {
                     //Debug.Log("move once");
                     activeMinoMinoBlock.MoveHorizontal(Direction.right, 1);
@@ -593,15 +650,15 @@ public class GameManger : MonoBehaviour
         Outline[] ghostMinoPiecesOutline;
         MeshRenderer[] ghostMinoPieceMeshRenderers;
 
-        if (instance.holdMino == null) // if there's no mino being held, just move the active mino there
+        if (Instance.HoldMino == null) // if there's no mino being held, just move the active mino there
         {
-            instance.holdMino = Instantiate(instance.activeMino, HoldMino.instance.transform.position, Quaternion.identity);
-            instance.holdMino.name = "HoldMino";
-            holdMinoMinoBlock = instance.holdMino.GetComponent<MinoBlock>();
-            holdMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+            Instance.HoldMino = Instantiate(Instance.ActiveMino, HoldMinoPreview.Instance.transform.position, Quaternion.identity);
+            Instance.HoldMino.name = "HoldMinoPreview";
+            holdMinoMinoBlock = Instance.HoldMino.GetComponent<MinoBlock>();
+            holdMinoMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-            Destroy(instance.activeMino.gameObject);
-            Destroy(instance.ghostMino.gameObject);
+            Destroy(Instance.ActiveMino.gameObject);
+            Destroy(Instance.GhostMino.gameObject);
 
             swappedHoldMinoLastTurn = true;
         }
@@ -609,43 +666,43 @@ public class GameManger : MonoBehaviour
         {
             if (canSwapHoldMino)
             {
-                activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
-                holdMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
+                activeMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
+                holdMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
 
-                activeMinoType = activeMinoMinoBlock.activeMinoType;
+                activeMinoType = activeMinoMinoBlock.ActiveMinoType;
 
-                Destroy(instance.activeMino.gameObject);
-                Destroy(instance.ghostMino.gameObject);
+                Destroy(Instance.ActiveMino.gameObject);
+                Destroy(Instance.GhostMino.gameObject);
 
                 // TODO: lots of redundant stuff from SpawnActiveMino, may want to make a method just for spawning an active mino anywhere with ghost piece
                 // and have this and SpawnActiveMino use that.
 
-                instance.activeMino = Instantiate(instance.holdMino, MinoSpawner.instance.transform.position, Quaternion.identity);
-                instance.activeMino.name = "ActiveMino";
-                activeMinoMinoBlock = instance.activeMino.GetComponent<MinoBlock>();
-                activeMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+                Instance.ActiveMino = Instantiate(Instance.HoldMino, MinoSpawner.Instance.transform.position, Quaternion.identity);
+                Instance.ActiveMino.name = "ActiveMino";
+                activeMinoMinoBlock = Instance.ActiveMino.GetComponent<MinoBlock>();
+                activeMinoMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-                instance.ghostMino = Instantiate(instance.holdMino, MinoSpawner.instance.transform.position, Quaternion.identity);
-                instance.ghostMino.name = "GhostMino";
-                ghostMinoMinoBlock = instance.ghostMino.GetComponent<MinoBlock>();
-                ghostMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+                Instance.GhostMino = Instantiate(Instance.HoldMino, MinoSpawner.Instance.transform.position, Quaternion.identity);
+                Instance.GhostMino.name = "GhostMino";
+                ghostMinoMinoBlock = Instance.GhostMino.GetComponent<MinoBlock>();
+                ghostMinoMinoBlock.ActiveMinoOrientation = (Orientation.flat);
                 ghostMinoPiecesOutline = MinoBlock.GetActiveMinoPieceOutlineComponent(ghostMinoMinoBlock);
                 for (int i = 0; i < ghostMinoPiecesOutline.Length; i++)
                 {
                     ghostMinoPiecesOutline[i].enabled = true;
                 }
-                ghostMinoPieceMeshRenderers = instance.ghostMino.GetComponentsInChildren<MeshRenderer>();
+                ghostMinoPieceMeshRenderers = Instance.GhostMino.GetComponentsInChildren<MeshRenderer>();
                 for (int i = 0; i < ghostMinoPieceMeshRenderers.Length; i++)
                 {
                     ghostMinoPieceMeshRenderers[i].enabled = false;
                 }
 
-                Destroy(instance.holdMino.gameObject);
+                Destroy(Instance.HoldMino.gameObject);
 
-                instance.holdMino = Instantiate(instance.minoPrefabs[(int)activeMinoType], HoldMino.instance.transform.position, Quaternion.identity);
-                instance.holdMino.name = "HoldMino";
-                holdMinoMinoBlock = instance.holdMino.GetComponent<MinoBlock>();
-                holdMinoMinoBlock.SetMinoOrientation(Orientation.flat);
+                Instance.HoldMino = Instantiate(Instance.MinoPrefabs[(int)activeMinoType], HoldMinoPreview.Instance.transform.position, Quaternion.identity);
+                Instance.HoldMino.name = "HoldMinoPreview";
+                holdMinoMinoBlock = Instance.HoldMino.GetComponent<MinoBlock>();
+                holdMinoMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
                 swappedHoldMinoLastTurn = false;
                 canSwapHoldMino = false;
@@ -657,70 +714,68 @@ public class GameManger : MonoBehaviour
         }
     }
 
-    private static void InitMinoQueue()
+    private void InitMinoQueue()
     {
         MinoBlock currentMinoBlock;
-        int randomIndex1 = Random.Range(0, instance.minoPrefabs.Length);
-        int randomIndex2 = Random.Range(0, instance.minoPrefabs.Length);
-        int randomIndex3 = Random.Range(0, instance.minoPrefabs.Length);
-        int randomIndex4 = Random.Range(0, instance.minoPrefabs.Length);
-        int randomIndex5 = Random.Range(0, instance.minoPrefabs.Length);
+        int randomIndex1 = Random.Range(0, Instance.MinoPrefabs.Length);
+        int randomIndex2 = Random.Range(0, Instance.MinoPrefabs.Length);
+        int randomIndex3 = Random.Range(0, Instance.MinoPrefabs.Length);
+        int randomIndex4 = Random.Range(0, Instance.MinoPrefabs.Length);
+        int randomIndex5 = Random.Range(0, Instance.MinoPrefabs.Length);
 
         // make sure we don't have a queue that repeats consecutively
         while (randomIndex2 == randomIndex1)
         {
-            randomIndex2 = Random.Range(0, instance.minoPrefabs.Length);
+            randomIndex2 = Random.Range(0, Instance.MinoPrefabs.Length);
         }
 
         while (randomIndex3 == randomIndex2)
         {
-            randomIndex3 = Random.Range(0, instance.minoPrefabs.Length);
+            randomIndex3 = Random.Range(0, Instance.MinoPrefabs.Length);
         }
 
         while (randomIndex4 == randomIndex3)
         {
-            randomIndex4 = Random.Range(0, instance.minoPrefabs.Length);
+            randomIndex4 = Random.Range(0, Instance.MinoPrefabs.Length);
         }
 
         while (randomIndex5 == randomIndex4)
         {
-            randomIndex5 = Random.Range(0, instance.minoPrefabs.Length);
+            randomIndex5 = Random.Range(0, Instance.MinoPrefabs.Length);
         }
 
-        instance.nextMino1 = Instantiate(instance.minoPrefabs[randomIndex1], MinoPreview1.instance.transform.position, Quaternion.identity);
-        instance.nextMino1.name = "NextMino1";
-        currentMinoBlock = instance.nextMino1.GetComponent<MinoBlock>();
-        currentMinoBlock.SetMinoOrientation(Orientation.flat);
+        Instance.NextMino1 = Instantiate(Instance.MinoPrefabs[randomIndex1], MinoPreview1.Instance.transform.position, Quaternion.identity);
+        Instance.NextMino1.name = "NextMino1";
+        currentMinoBlock = Instance.NextMino1.GetComponent<MinoBlock>();
+        currentMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-        instance.nextMino2 = Instantiate(instance.minoPrefabs[randomIndex2], MinoPreview2.instance.transform.position, Quaternion.identity);
-        instance.nextMino2.name = "NextMino2";
-        currentMinoBlock = instance.nextMino2.GetComponent<MinoBlock>();
-        currentMinoBlock.SetMinoOrientation(Orientation.flat);
+        Instance.NextMino2 = Instantiate(Instance.MinoPrefabs[randomIndex2], MinoPreview2.Instance.transform.position, Quaternion.identity);
+        Instance.NextMino2.name = "NextMino2";
+        currentMinoBlock = Instance.NextMino2.GetComponent<MinoBlock>();
+        currentMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-        instance.nextMino3 = Instantiate(instance.minoPrefabs[randomIndex3], MinoPreview3.instance.transform.position, Quaternion.identity);
-        instance.nextMino3.name = "NextMino3";
-        currentMinoBlock = instance.nextMino3.GetComponent<MinoBlock>();
-        currentMinoBlock.SetMinoOrientation(Orientation.flat);
+        Instance.NextMino3 = Instantiate(Instance.MinoPrefabs[randomIndex3], MinoPreview3.Instance.transform.position, Quaternion.identity);
+        Instance.NextMino3.name = "NextMino3";
+        currentMinoBlock = Instance.NextMino3.GetComponent<MinoBlock>();
+        currentMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-        instance.nextMino4 = Instantiate(instance.minoPrefabs[randomIndex4], MinoPreview4.instance.transform.position, Quaternion.identity);
-        instance.nextMino3.name = "NextMino4";
-        currentMinoBlock = instance.nextMino4.GetComponent<MinoBlock>();
-        currentMinoBlock.SetMinoOrientation(Orientation.flat);
+        Instance.NextMino4 = Instantiate(Instance.MinoPrefabs[randomIndex4], MinoPreview4.Instance.transform.position, Quaternion.identity);
+        Instance.NextMino3.name = "NextMino4";
+        currentMinoBlock = Instance.NextMino4.GetComponent<MinoBlock>();
+        currentMinoBlock.ActiveMinoOrientation = (Orientation.flat);
 
-        instance.nextMino5 = Instantiate(instance.minoPrefabs[randomIndex5], MinoPreview5.instance.transform.position, Quaternion.identity);
-        instance.nextMino3.name = "NextMino5";
-        currentMinoBlock = instance.nextMino5.GetComponent<MinoBlock>();
-        currentMinoBlock.SetMinoOrientation(Orientation.flat);
+        Instance.NextMino5 = Instantiate(Instance.MinoPrefabs[randomIndex5], MinoPreview5.Instance.transform.position, Quaternion.identity);
+        Instance.NextMino3.name = "NextMino5";
+        currentMinoBlock = Instance.NextMino5.GetComponent<MinoBlock>();
+        currentMinoBlock.ActiveMinoOrientation = (Orientation.flat);
     }
-
-
 
     public void LockActiveMino()
     {
-        if (instance.activeMino != null)
+        if (Instance.ActiveMino != null)
         {
             // Set the whole mino to the default layer, and the minoblocks to the placed mino layer
-            switch (activeMinoMinoBlock.activeMinoOrientation)
+            switch (activeMinoMinoBlock.ActiveMinoOrientation)
             {
                 case Orientation.flat:
                     for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
@@ -799,7 +854,7 @@ public class GameManger : MonoBehaviour
                     break;
             }
 
-            instance.activeMino.layer = 0;
+            Instance.ActiveMino.layer = 0;
 
             for (int i = 0; i < activeMinoMinoBlock.flatPieces.Length; i++)
             {

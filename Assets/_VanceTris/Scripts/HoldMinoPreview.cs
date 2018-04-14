@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MinoPreview2 : MonoBehaviour
+public class HoldMinoPreview : MonoBehaviour
 {
-    private static MinoPreview2 _instance;
-    public static MinoPreview2 Instance
+    private static HoldMinoPreview _instance;
+    public static HoldMinoPreview Instance
     {
         get { return _instance; }
         set { _instance = value; }

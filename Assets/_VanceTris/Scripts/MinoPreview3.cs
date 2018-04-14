@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class MinoPreview3 : MonoBehaviour
 {
-    public static MinoPreview3 instance;
+    private static MinoPreview3 _instance;
+    public static MinoPreview3 Instance
+    {
+        get { return _instance; }
+        set { _instance = value; }
+    }
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 }

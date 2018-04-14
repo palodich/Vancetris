@@ -6,14 +6,14 @@ using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
-    public MenuWindow menuWindow;
-    public Button continueButton;
+    [SerializeField] private MenuWindow menuWindow;
+    [SerializeField] private Button continueButton;
 
-    public static UIManager instance;
+    public static UIManager Instance;
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -23,7 +23,7 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManger.instance.IsGameInProgress())
+        if (GameManger.Instance.IsGameInProgress())
         {
             continueButton.gameObject.SetActive(true);
         }
@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
 
     public void OnMenuButton()
     {
-        switch (GameManger.instance.CurrentGameState)
+        switch (GameManger.Instance.CurrentGameState)
         {
             case GameState.inGame:
                 menuWindow.Open();
@@ -58,7 +58,7 @@ public class UIManager : MonoBehaviour
 
     public void OnStartNewGameButton()
     {
-        GameManger.instance.StartNewGame();
+        GameManger.Instance.StartNewGame();
         menuWindow.Close();
     }
 

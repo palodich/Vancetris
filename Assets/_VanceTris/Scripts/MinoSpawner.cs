@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class MinoSpawner : MonoBehaviour
 {
-    public static MinoSpawner instance;
+    private static MinoSpawner _instance;
+    public static MinoSpawner Instance
+    {
+        get { return _instance; }
+        set { _instance = value; }
+    }
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 }

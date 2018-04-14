@@ -7,12 +7,12 @@ public class MenuWindow : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
-        GameManger.instance.CurrentGameState = GameState.inMenu;
+        GameManger.Instance.CurrentGameState = GameState.inMenu;
     }
 
     public void Close()
     {
         gameObject.SetActive(false);
-        GameManger.instance.CurrentGameState = GameState.inGame;
+        GameManger.Instance.CurrentGameState = GameState.inGame;
     }
 }

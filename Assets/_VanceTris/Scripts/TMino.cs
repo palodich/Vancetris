@@ -4,29 +4,29 @@ using UnityEngine;
 
 public class TMino : MonoBehaviour
 {
-    /* We need these GameObjects we can better tell when a t-spin has occurred.
+    /* We need these GameObjects so we can better tell when a t-spin has occurred.
      * Each orientation has it's corners defined. The "front" of the T mino is
      * the block that extends outward */
 
-    public GameObject flatFrontLeftCorner;
-    public GameObject flatFrontRightCorner;
-    public GameObject flatBackLeftCorner;
-    public GameObject flatBackRightCorner;
+    [SerializeField] private GameObject flatFrontLeftCorner;
+    [SerializeField] private GameObject flatFrontRightCorner;
+    [SerializeField] private GameObject flatBackLeftCorner;
+    [SerializeField] private GameObject flatBackRightCorner;
 
-    public GameObject leftFrontLeftCorner;
-    public GameObject leftFrontRightCorner;
-    public GameObject leftBackLeftCorner;
-    public GameObject leftBackRightCorner;
+    [SerializeField] private GameObject leftFrontLeftCorner;
+    [SerializeField] private GameObject leftFrontRightCorner;
+    [SerializeField] private GameObject leftBackLeftCorner;
+    [SerializeField] private GameObject leftBackRightCorner;
 
-    public GameObject rightFrontLeftCorner;
-    public GameObject rightFrontRightCorner;
-    public GameObject rightBackLeftCorner;
-    public GameObject rightBackRightCorner;
+    [SerializeField] private GameObject rightFrontLeftCorner;
+    [SerializeField] private GameObject rightFrontRightCorner;
+    [SerializeField] private GameObject rightBackLeftCorner;
+    [SerializeField] private GameObject rightBackRightCorner;
 
-    public GameObject flippedFrontLeftCorner;
-    public GameObject flippedFrontRightCorner;
-    public GameObject flippedBackLeftCorner;
-    public GameObject flippedBackRightCorner;
+    [SerializeField] private GameObject flippedFrontLeftCorner;
+    [SerializeField] private GameObject flippedFrontRightCorner;
+    [SerializeField] private GameObject flippedBackLeftCorner;
+    [SerializeField] private GameObject flippedBackRightCorner;
 
     public void CheckTSpin(Orientation orientation)
     {
@@ -59,7 +59,7 @@ public class TMino : MonoBehaviour
         {
             cornerPos = corners[i].transform.position;
 
-            cornerColliders = Physics.OverlapBox(cornerPos, overlapBoxSize, Quaternion.identity, GameManger.instance.minoBlockLayerMask);
+            cornerColliders = Physics.OverlapBox(cornerPos, overlapBoxSize, Quaternion.identity, GameManger.Instance.MinoBlockLayerMask);
 
             if (cornerColliders.Length > 0)
             {
